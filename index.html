@@ -263,6 +263,8 @@ main {
   scroll-snap-type:y mandatory;
   scrollbar-width:none;
   overscroll-behavior-y:contain;
+  -webkit-overflow-scrolling:touch;
+  touch-action:pan-y;
   border-radius:17px;
 }
 
@@ -283,14 +285,19 @@ main {
   isolation:isolate;
 }
 
-.short-card img {
+/* REAL SHORT VIDEO PLAYER */
+
+.short-video {
   position:absolute;
   inset:0;
   width:100%;
   height:100%;
   object-fit:cover;
-  z-index:-2;
+  background:#000;
+  z-index:0;
 }
+
+/* DARK GRADIENT OVER VIDEO */
 
 .short-card::after {
   content:"";
@@ -302,12 +309,13 @@ main {
     transparent 48%,
     rgba(0,0,0,.12)
   );
-  z-index:-1;
+  z-index:1;
   pointer-events:none;
 }
 
 .short-top {
   position:absolute;
+  z-index:2;
   top:15px;
   left:15px;
   right:15px;
@@ -330,6 +338,7 @@ main {
 
 .short-overlay {
   position:absolute;
+  z-index:2;
   bottom:22px;
   left:15px;
   right:75px;
@@ -350,6 +359,7 @@ main {
 
 .short-actions {
   position:absolute;
+  z-index:3;
   right:12px;
   bottom:30px;
   display:grid;
@@ -605,9 +615,16 @@ footer {
     <!-- SHORT 1 -->
 
     <article class="short-card">
-      <img
-        src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=900"
-        alt="Football">
+      <video
+        class="short-video"
+        src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        preload="metadata">
+      </video>
 
       <div class="short-top">
         <strong>▶ JIENXS</strong>
@@ -639,9 +656,16 @@ footer {
     <!-- SHORT 2 -->
 
     <article class="short-card">
-      <img
-        src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=900"
-        alt="Football skills">
+      <video
+        class="short-video"
+        src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        preload="metadata">
+      </video>
 
       <div class="short-top">
         <strong>▶ JIENXS</strong>
@@ -673,9 +697,16 @@ footer {
     <!-- SHORT 3 -->
 
     <article class="short-card">
-      <img
-        src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=900"
-        alt="Gaming">
+      <video
+        class="short-video"
+        src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        preload="metadata">
+      </video>
 
       <div class="short-top">
         <strong>▶ JIENXS</strong>
@@ -707,9 +738,16 @@ footer {
     <!-- SHORT 4 -->
 
     <article class="short-card">
-      <img
-        src="https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=900"
-        alt="Sports">
+      <video
+        class="short-video"
+        src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+        autoplay
+        muted
+        loop
+        playsinline
+        controls
+        preload="metadata">
+      </video>
 
       <div class="short-top">
         <strong>▶ JIENXS</strong>
@@ -948,68 +986,48 @@ function showPage(id,el) {
  if(el) el.classList.add('active');
 
  window.scrollTo(0,0);
+
+ if(id === 'shorts') {
+   playShorts();
+ } else {
+   pauseShorts();
+ }
+}
+
+/* PLAY SHORTS WHEN OPEN */
+
+function playShorts() {
+ const feed = document.getElementById('shortsFeed');
+
+ const observer = new IntersectionObserver(entries => {
+   entries.forEach(entry => {
+     const video = entry.target.querySelector('video');
+
+     if(!video) return;
+
+     if(entry.isIntersecting && document.getElementById('shorts').classList.contains('active')) {
+       video.play().catch(() => {});
+     } else {
+       video.pause();
+     }
+   });
+ }, {
+   root:feed,
+   threshold:0.65
+ });
+
+ document.querySelectorAll('.short-card').forEach(card => {
+   observer.observe(card);
+ });
+}
+
+function pauseShorts() {
+ document.querySelectorAll('.short-video').forEach(video => {
+   video.pause();
+ });
 }
 
 /* JOIN MODAL */
 
 function openModal() {
- document.getElementById('joinModal').classList.add('open');
-}
-
-function closeModal() {
- document.getElementById('joinModal').classList.remove('open');
-}
-
-/* DEMO VIDEO */
-
-function playDemo(title) {
- alert(
-  title +
-  '\n\nThis is a design preview. Real video playback will be connected after we add video hosting.'
- );
-}
-
-/* SHORTS LIKE BUTTON */
-
-function toggleLike(button) {
- const count = button.parentElement.querySelector('.like-count');
-
- let liked = button.classList.toggle('liked');
- let number = Number(count.textContent);
-
- count.textContent = liked ? number + 1 : Math.max(0,number - 1);
-}
-
-/* SHORTS COMMENTS */
-
-function commentDemo() {
- alert('Comments will be available when Jienxs accounts and the database are connected.');
-}
-
-/* SHARE WEBSITE */
-
-function sharePage() {
- if(navigator.share) {
-  navigator.share({
-   title:'JIENXS',
-   text:'Discover videos on Jienxs!',
-   url:location.href
-  }).catch(()=>{});
- } else if(navigator.clipboard) {
-  navigator.clipboard.writeText(location.href)
-   .then(()=>alert('Website link copied!'))
-   .catch(()=>alert('Copy this website address: '+location.href));
- } else {
-  alert('Copy this website address to share: '+location.href);
- }
-}
-
-/* START WEBSITE */
-
-renderVideos();
-
-</script>
-
-</body>
-      </html>
-  
+ document.getElementById('joinModal').classList.add('open
