@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,524 +7,504 @@
 
 <style>
 :root {
-  --bg:#0b0d12;
-  --panel:#171b26;
-  --panel2:#222838;
-  --green:#35d07f;
-  --muted:#a6adbb;
+  --bg: #0b0d0c;
+  --panel: #151917;
+  --panel2: #1c221f;
+  --green: #19d477;
+  --text: #f5f7f6;
+  --muted: #9ba6a0;
+  --border: #29332e;
 }
 
-* { box-sizing:border-box; }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
-  margin:0;
-  background:var(--bg);
-  color:white;
-  font-family:Arial,sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
 }
 
-button,input { font:inherit; }
-button { cursor:pointer; }
+button, input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
 
 header {
-  height:66px;
-  background:#121722;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:0 18px;
-  position:sticky;
-  top:0;
-  z-index:20;
-  border-bottom:1px solid #292e3a;
+  height: 66px;
+  background: #101411;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  gap: 12px;
 }
 
 .logo {
-  font-size:25px;
-  font-weight:900;
-  color:var(--green);
-  letter-spacing:1px;
-}
-
-.logo span { color:white; }
-
-.header-actions {
-  display:flex;
-  align-items:center;
-  gap:10px;
+  color: var(--green);
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  cursor: pointer;
 }
 
 .search {
-  background:#222838;
-  border:1px solid #353c4b;
-  border-radius:25px;
-  padding:10px 14px;
-  color:white;
-  width:min(36vw,300px);
-  outline:none;
+  display: flex;
+  width: min(430px, 45%);
 }
 
-.btn {
-  border:0;
-  border-radius:9px;
-  padding:11px 16px;
-  background:var(--green);
-  color:#07130c;
-  font-weight:bold;
+.search input {
+  width: 100%;
+  padding: 11px 14px;
+  background: #202722;
+  color: white;
+  border: 1px solid var(--border);
+  border-radius: 22px 0 0 22px;
+  outline: none;
 }
 
-.ghost {
-  background:#222838;
-  color:white;
+.search button {
+  border: 0;
+  background: var(--green);
+  color: #07120b;
+  padding: 0 17px;
+  border-radius: 0 22px 22px 0;
+  font-weight: bold;
 }
 
-.layout {
-  display:grid;
-  grid-template-columns:210px 1fr;
-  max-width:1450px;
-  margin:auto;
-}
-
-aside {
-  padding:20px 12px;
-  border-right:1px solid #252a35;
-  min-height:calc(100vh - 66px);
-  position:sticky;
-  top:66px;
-  height:calc(100vh - 66px);
+.join-btn, .primary-btn {
+  border: 0;
+  background: var(--green);
+  color: #07120b;
+  padding: 11px 17px;
+  border-radius: 22px;
+  font-weight: bold;
 }
 
 .nav {
-  display:flex;
-  align-items:center;
-  gap:13px;
-  padding:14px;
-  border-radius:10px;
-  color:#dce0e8;
-  cursor:pointer;
-  margin-bottom:5px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  background: #101411;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 66px;
+  z-index: 19;
 }
 
-.nav:hover,.nav.active {
-  background:#222838;
-  color:var(--green);
+.nav button {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  padding: 10px 16px;
+  border-radius: 20px;
+}
+
+.nav button.active,
+.nav button:hover {
+  background: #1c2b22;
+  color: var(--green);
 }
 
 main {
-  padding:24px;
-  min-width:0;
+  max-width: 1250px;
+  margin: auto;
+  padding: 22px;
 }
 
-.section-title {
-  font-size:23px;
-  margin:12px 0 18px;
+.page {
+  display: none;
 }
 
-.filters {
-  display:flex;
-  gap:9px;
-  overflow:auto;
-  padding-bottom:15px;
-}
-
-.chip {
-  white-space:nowrap;
-  background:var(--panel2);
-  color:white;
-  border:0;
-  border-radius:22px;
-  padding:10px 17px;
-}
-
-.chip.active {
-  background:var(--green);
-  color:#07130c;
-  font-weight:bold;
+.page.active {
+  display: block;
 }
 
 .hero {
-  background:linear-gradient(115deg,#172c28,#192235 65%,#253044);
-  border-radius:17px;
-  padding:25px;
-  margin-bottom:28px;
+  background: linear-gradient(120deg, #163b27, #111c16 70%);
+  border: 1px solid #28563b;
+  border-radius: 18px;
+  padding: 35px 25px;
+  margin-bottom: 25px;
 }
 
 .hero h1 {
-  font-size:clamp(28px,5vw,43px);
-  margin:0 0 10px;
+  font-size: clamp(30px, 5vw, 48px);
+  margin-bottom: 12px;
 }
 
 .hero p {
-  color:#c5cbd5;
-  line-height:1.5;
-  max-width:540px;
+  color: #c0d0c5;
+  line-height: 1.6;
+  max-width: 550px;
 }
 
-.green { color:var(--green); }
+.hero button {
+  margin-top: 20px;
+}
+
+.section-title {
+  margin: 25px 0 16px;
+  font-size: 22px;
+}
+
+.categories {
+  display: flex;
+  gap: 9px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+}
+
+.category-btn {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  color: white;
+  border-radius: 20px;
+  padding: 9px 17px;
+  white-space: nowrap;
+}
+
+.category-btn.active {
+  background: var(--green);
+  color: #06120b;
+  border-color: var(--green);
+}
 
 .video-grid {
-  display:grid;
-  grid-template-columns:repeat(3,minmax(0,1fr));
-  gap:20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
 }
 
 .video-card {
-  min-width:0;
-  cursor:pointer;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  overflow: hidden;
 }
 
-.thumb {
-  height:170px;
-  border-radius:13px;
-  background:#202c46;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
+.video-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+  background: #202722;
 }
 
-.thumb img {
-  width:100%;
-  height:100%;
-  object-fit:cover;
+.thumb-wrap {
+  position: relative;
+  cursor: pointer;
 }
 
-.play {
-  position:absolute;
-  background:#0009;
-  border-radius:50%;
-  padding:12px;
-  font-size:20px;
-}
-
-.duration {
-  position:absolute;
-  right:9px;
-  bottom:9px;
-  background:#000b;
-  padding:4px 7px;
-  border-radius:5px;
-  font-size:12px;
+.play-icon {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  text-shadow: 0 2px 12px black;
+  background: #0002;
 }
 
 .video-info {
-  display:flex;
-  gap:10px;
-  padding-top:11px;
-}
-
-.avatar {
-  width:35px;
-  height:35px;
-  border-radius:50%;
-  background:#315c4b;
-  display:grid;
-  place-items:center;
-  flex-shrink:0;
+  padding: 13px;
 }
 
 .video-info h3 {
-  font-size:15px;
-  line-height:1.35;
-  margin:0 0 6px;
+  font-size: 16px;
+  margin-bottom: 7px;
 }
 
-.meta {
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.6;
+.video-info p {
+  color: var(--muted);
+  font-size: 13px;
 }
 
-.empty {
-  color:var(--muted);
-  padding:30px 0;
+.empty-message {
+  color: var(--muted);
+  padding: 30px 0;
 }
 
-.page { display:none; }
-.page.active { display:block; }
+/* SHORTS */
 
-/* JIENXS SHORTS FEED */
+#shorts {
+  max-width: 650px;
+  margin: auto;
+}
 
 .shorts-heading {
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
+  margin-bottom: 15px;
 }
 
 .shorts-feed {
-  width:min(100%,430px);
-  height:calc(100vh - 190px);
-  min-height:420px;
-  margin:15px auto;
-  overflow-y:auto;
-  scroll-snap-type:y mandatory;
-  scrollbar-width:none;
-  overscroll-behavior-y:contain;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-y;
-  border-radius:17px;
-}
-
-.shorts-feed::-webkit-scrollbar {
-  display:none;
+  height: min(76vh, 760px);
+  min-height: 470px;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  background: #000;
+  border-radius: 15px;
+  scrollbar-width: thin;
 }
 
 .short-card {
-  height:100%;
-  min-height:420px;
-  position:relative;
-  overflow:hidden;
-  scroll-snap-align:start;
-  scroll-snap-stop:always;
-  background:#202838;
-  border-radius:17px;
-  margin-bottom:12px;
-  isolation:isolate;
+  position: relative;
+  height: 100%;
+  min-height: 470px;
+  scroll-snap-align: start;
+  overflow: hidden;
+  background: #000;
 }
-
-/* REAL SHORT VIDEO PLAYER */
 
 .short-video {
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  background:#000;
-  z-index:0;
-}
-
-/* DARK GRADIENT OVER VIDEO */
-
-.short-card::after {
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(
-    to top,
-    rgba(0,0,0,.85),
-    transparent 48%,
-    rgba(0,0,0,.12)
-  );
-  z-index:1;
-  pointer-events:none;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #000;
+  z-index: 0;
 }
 
 .short-top {
-  position:absolute;
-  z-index:2;
-  top:15px;
-  left:15px;
-  right:15px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  text-shadow:0 2px 5px #000;
-}
-
-.short-top strong {
-  font-size:14px;
-}
-
-.short-label {
-  background:#0008;
-  padding:7px 11px;
-  border-radius:20px;
-  font-size:11px;
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  z-index: 3;
+  background: #0008;
+  padding: 8px 12px;
+  border-radius: 20px;
 }
 
 .short-overlay {
-  position:absolute;
-  z-index:2;
-  bottom:22px;
-  left:15px;
-  right:75px;
-  text-shadow:0 2px 5px #000;
+  position: absolute;
+  left: 15px;
+  right: 75px;
+  bottom: 20px;
+  z-index: 3;
+  text-shadow: 0 2px 5px black;
+  pointer-events: none;
 }
 
-.short-overlay strong {
-  display:block;
-  margin-bottom:9px;
-  font-size:15px;
+.short-overlay h3 {
+  margin-bottom: 8px;
 }
 
 .short-overlay p {
-  font-size:14px;
-  line-height:1.5;
-  margin:5px 0;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .short-actions {
-  position:absolute;
-  z-index:3;
-  right:12px;
-  bottom:30px;
-  display:grid;
-  gap:17px;
-  text-align:center;
+  position: absolute;
+  right: 12px;
+  bottom: 28px;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
 }
 
 .short-actions button {
-  border:0;
-  background:#151923cc;
-  color:white;
-  border-radius:50%;
-  width:43px;
-  height:43px;
-  font-size:20px;
+  border: 0;
+  color: white;
+  background: #101010aa;
+  width: 47px;
+  height: 47px;
+  border-radius: 50%;
+  font-size: 20px;
 }
 
 .short-actions button.liked {
-  background:#e83c62;
+  color: var(--green);
 }
 
-.short-actions small {
-  display:block;
-  font-size:11px;
-  margin-top:4px;
-  text-shadow:0 2px 4px #000;
+.shorts-hint {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 10px;
 }
 
-.short-hint {
-  text-align:center;
-  color:var(--muted);
-  font-size:12px;
-  margin:12px 0;
+/* EXPLORE AND UPLOAD */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 25px;
+  margin-top: 15px;
 }
 
-/* MODAL */
+.panel p {
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: 10px;
+}
+
+.upload-box {
+  border: 2px dashed #3c5948;
+  border-radius: 15px;
+  text-align: center;
+  padding: 40px 15px;
+  margin-top: 20px;
+}
+
+.upload-box p {
+  color: var(--muted);
+  margin: 12px 0;
+}
+
+/* MODALS */
 
 .modal {
-  display:none;
-  position:fixed;
-  inset:0;
-  background:#000c;
-  z-index:30;
-  align-items:center;
-  justify-content:center;
-  padding:18px;
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: #000d;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
 }
 
-.modal.open { display:flex; }
-
-.modal-box {
-  background:var(--panel);
-  padding:22px;
-  border-radius:15px;
-  width:min(100%,450px);
+.modal.open {
+  display: flex;
 }
 
-.modal-box h2 { margin-top:0; }
-
-.modal-box input {
-  width:100%;
-  margin:8px 0 15px;
-  padding:13px;
-  border:1px solid #444c5c;
-  border-radius:8px;
-  background:#0d1119;
-  color:white;
+.modal-content {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  width: min(430px, 100%);
+  padding: 25px;
+  position: relative;
 }
 
-.close {
-  float:right;
-  background:none;
-  color:white;
-  border:0;
-  font-size:24px;
+.modal-content h2 {
+  margin-bottom: 18px;
 }
 
-.notice {
-  font-size:12px;
-  color:var(--muted);
-  line-height:1.5;
+.modal-content input {
+  width: 100%;
+  padding: 13px;
+  background: #222b25;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  background: transparent;
+  color: white;
+  border: 0;
+  font-size: 25px;
+}
+
+#videoModal .modal-content {
+  width: min(850px, 100%);
+}
+
+#videoPlayer {
+  width: 100%;
+  max-height: 70vh;
+  background: black;
+  margin-top: 10px;
 }
 
 footer {
-  text-align:center;
-  color:#7f8796;
-  padding:35px 10px;
-  font-size:12px;
+  text-align: center;
+  padding: 35px 15px;
+  color: var(--muted);
+  border-top: 1px solid var(--border);
+  margin-top: 40px;
 }
 
-/* MOBILE RESPONSIVE DESIGN */
+/* MOBILE */
 
-@media(max-width:850px) {
-  .layout { grid-template-columns:1fr; }
+@media (max-width: 750px) {
+  header {
+    padding: 0 10px;
+  }
 
-  aside {
-    position:fixed;
-    z-index:25;
-    bottom:0;
-    top:auto;
-    left:0;
-    right:0;
-    height:62px;
-    min-height:0;
-    background:#121722;
-    border-right:0;
-    border-top:1px solid #303644;
-    display:flex;
-    justify-content:space-around;
-    padding:4px;
+  .logo {
+    font-size: 20px;
+  }
+
+  .search {
+    width: 43%;
+  }
+
+  .search input {
+    min-width: 0;
+    padding: 9px;
+  }
+
+  .search button {
+    padding: 0 11px;
+  }
+
+  .join-btn {
+    padding: 9px 12px;
   }
 
   .nav {
-    display:grid;
-    gap:2px;
-    justify-items:center;
-    font-size:10px;
-    padding:6px 10px;
-    margin:0;
+    justify-content: flex-start;
+    overflow-x: auto;
+    top: 66px;
   }
 
-  .nav span:first-child { font-size:18px; }
+  .nav button {
+    white-space: nowrap;
+  }
 
-  main { padding:17px 14px 85px; }
+  main {
+    padding: 14px;
+  }
 
   .video-grid {
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:14px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
   }
 
-  .thumb { height:130px; }
+  .video-info {
+    padding: 10px;
+  }
 
-  .search { width:34vw; }
-
-  header { padding:0 12px; }
+  .video-info h3 {
+    font-size: 14px;
+  }
 
   .shorts-feed {
-    height:calc(100svh - 190px);
-    min-height:420px;
+    height: 72vh;
+    min-height: 430px;
+    border-radius: 10px;
+  }
+
+  .short-card {
+    min-height: 430px;
   }
 }
 
-@media(max-width:430px) {
-  .logo { font-size:21px; }
-
-  .header-actions { gap:6px; }
-
-  .header-actions .btn {
-    padding:9px 10px;
-    font-size:12px;
+@media (max-width: 390px) {
+  .video-grid {
+    grid-template-columns: 1fr;
   }
-
-  .video-grid { gap:12px; }
-  .thumb { height:112px; }
-
-  .video-info h3 { font-size:13px; }
-
-  .hero { padding:20px; }
-  .hero p { font-size:14px; }
-
-  .shorts-feed {
-    width:100%;
-    border-radius:12px;
-  }
-
-  .short-card { border-radius:12px; }
 }
 </style>
 </head>
@@ -533,501 +512,398 @@ footer {
 <body>
 
 <header>
-  <div class="logo">▶ JIENXS<span>.</span></div>
+  <div class="logo" onclick="showPage('home')">JIENXS</div>
 
-  <div class="header-actions">
-    <input class="search" id="search"
-      placeholder="Search videos..."
-      oninput="renderVideos()">
-    <button class="btn" onclick="openModal()">Join</button>
-  </div>
+  <form class="search" id="searchForm">
+    <input id="searchInput" type="search" placeholder="Search videos...">
+    <button type="submit">⌕</button>
+  </form>
+
+  <button class="join-btn" onclick="openModal('loginModal')">Join</button>
 </header>
 
-<div class="layout">
-
-<aside>
-  <div class="nav active" onclick="showPage('home',this)">
-    <span>⌂</span><span>Home</span>
-  </div>
-
-  <div class="nav" onclick="showPage('shorts',this)">
-    <span>▣</span><span>Shorts</span>
-  </div>
-
-  <div class="nav" onclick="showPage('explore',this)">
-    <span>⌕</span><span>Explore</span>
-  </div>
-
-  <div class="nav" onclick="showPage('upload',this)">
-    <span>＋</span><span>Upload</span>
-  </div>
-
-  <div class="nav" onclick="openModal()">
-    <span>●</span><span>Join / Login</span>
-  </div>
-</aside>
+<nav class="nav">
+  <button class="active" data-page="home">Home</button>
+  <button data-page="shorts">Shorts</button>
+  <button data-page="explore">Explore</button>
+  <button data-page="upload">Upload</button>
+</nav>
 
 <main>
 
-<!-- HOME PAGE -->
+  <!-- HOME PAGE -->
+  <section id="home" class="page active">
 
-<section id="home" class="page active">
+    <div class="hero">
+      <h1>Welcome to JIENXS</h1>
+      <p>Watch videos. Discover creators. Share your moments.
+      Your world of videos starts here.</p>
+      <button class="primary-btn" onclick="showPage('shorts')">
+        Watch Shorts
+      </button>
+    </div>
 
-  <div class="hero">
-    <h1>Welcome to <span class="green">JIENXS</span></h1>
-    <p>
-      Watch the moments. Discover new creators.
-      Share your passion. From football highlights
-      to gaming and amazing skills.
-    </p>
-    <button class="btn"
-      onclick="document.getElementById('feed').scrollIntoView({behavior:'smooth'})">
-      Explore videos
-    </button>
-  </div>
+    <h2 class="section-title">Explore categories</h2>
 
-  <div class="filters" id="filters">
-    <button class="chip active" onclick="setCategory('All',this)">For you</button>
-    <button class="chip" onclick="setCategory('Football',this)">⚽ Football</button>
-    <button class="chip" onclick="setCategory('Gaming',this)">🎮 Gaming</button>
-    <button class="chip" onclick="setCategory('Skills',this)">🔥 Skills</button>
-    <button class="chip" onclick="setCategory('Other',this)">🎬 Other</button>
-  </div>
+    <div class="categories" id="homeCategories">
+      <button class="category-btn active" data-category="All">All</button>
+      <button class="category-btn" data-category="Football">Football</button>
+      <button class="category-btn" data-category="Gaming">Gaming</button>
+      <button class="category-btn" data-category="Skills">Skills</button>
+      <button class="category-btn" data-category="Other">Other</button>
+    </div>
 
-  <h2 class="section-title" id="feed">Recommended videos</h2>
-  <div class="video-grid" id="videoGrid"></div>
+    <h2 class="section-title">Recommended videos</h2>
 
-</section>
+    <div class="video-grid" id="videoGrid">
 
-<!-- SHORTS PAGE -->
-
-<section id="shorts" class="page">
-
-  <div class="shorts-heading">
-    <h2 class="section-title">JIENXS Shorts</h2>
-    <span class="short-label">For You</span>
-  </div>
-
-  <p class="meta">Swipe up to discover more videos.</p>
-
-  <div class="shorts-feed" id="shortsFeed">
-
-    <!-- SHORT 1 -->
-
-    <article class="short-card">
-      <video
-        class="short-video"
-        src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-        controls
-        preload="metadata">
-      </video>
-
-      <div class="short-top">
-        <strong>▶ JIENXS</strong>
-        <span class="short-label">Football</span>
-      </div>
-
-      <div class="short-overlay">
-        <strong>@JienxsSports</strong>
-        <p>Amazing football moments ⚽</p>
-        <p>#Football #Goals #Jienxs</p>
-      </div>
-
-      <div class="short-actions">
-        <div>
-          <button onclick="toggleLike(this)">♥</button>
-          <small class="like-count">0</small>
+      <article class="video-card" data-category="Football">
+        <div class="thumb-wrap" onclick="openVideo(0)">
+          <img class="video-thumb"
+            src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800"
+            alt="Football field">
+          <div class="play-icon">▶</div>
         </div>
-        <div>
-          <button onclick="commentDemo()">●</button>
-          <small>Comment</small>
+        <div class="video-info">
+          <h3>Football video preview</h3>
+          <p>JIENXS Football · Sample video</p>
         </div>
-        <div>
-          <button onclick="sharePage()">↗</button>
-          <small>Share</small>
+      </article>
+
+      <article class="video-card" data-category="Gaming">
+        <div class="thumb-wrap" onclick="openVideo(1)">
+          <img class="video-thumb"
+            src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800"
+            alt="Gaming setup">
+          <div class="play-icon">▶</div>
         </div>
-      </div>
-    </article>
-
-    <!-- SHORT 2 -->
-
-    <article class="short-card">
-      <video
-        class="short-video"
-        src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-        controls
-        preload="metadata">
-      </video>
-
-      <div class="short-top">
-        <strong>▶ JIENXS</strong>
-        <span class="short-label">Skills</span>
-      </div>
-
-      <div class="short-overlay">
-        <strong>@SkillZone</strong>
-        <p>Show us your best skills! 🔥</p>
-        <p>#Skills #Freestyle #Jienxs</p>
-      </div>
-
-      <div class="short-actions">
-        <div>
-          <button onclick="toggleLike(this)">♥</button>
-          <small class="like-count">0</small>
+        <div class="video-info">
+          <h3>Gaming video preview</h3>
+          <p>JIENXS Gaming · Sample video</p>
         </div>
-        <div>
-          <button onclick="commentDemo()">●</button>
-          <small>Comment</small>
+      </article>
+
+      <article class="video-card" data-category="Skills">
+        <div class="thumb-wrap" onclick="openVideo(2)">
+          <img class="video-thumb"
+            src="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800"
+            alt="Sports skills">
+          <div class="play-icon">▶</div>
         </div>
-        <div>
-          <button onclick="sharePage()">↗</button>
-          <small>Share</small>
+        <div class="video-info">
+          <h3>Skills video preview</h3>
+          <p>JIENXS Skills · Sample video</p>
         </div>
-      </div>
-    </article>
+      </article>
 
-    <!-- SHORT 3 -->
-
-    <article class="short-card">
-      <video
-        class="short-video"
-        src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-        controls
-        preload="metadata">
-      </video>
-
-      <div class="short-top">
-        <strong>▶ JIENXS</strong>
-        <span class="short-label">Gaming</span>
-      </div>
-
-      <div class="short-overlay">
-        <strong>@GameCentral</strong>
-        <p>Gaming highlights and epic plays 🎮</p>
-        <p>#Gaming #Highlights</p>
-      </div>
-
-      <div class="short-actions">
-        <div>
-          <button onclick="toggleLike(this)">♥</button>
-          <small class="like-count">0</small>
+      <article class="video-card" data-category="Other">
+        <div class="thumb-wrap" onclick="openVideo(3)">
+          <img class="video-thumb"
+            src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800"
+            alt="Event">
+          <div class="play-icon">▶</div>
         </div>
-        <div>
-          <button onclick="commentDemo()">●</button>
-          <small>Comment</small>
+        <div class="video-info">
+          <h3>Discover something new</h3>
+          <p>JIENXS · Sample video</p>
         </div>
-        <div>
-          <button onclick="sharePage()">↗</button>
-          <small>Share</small>
+      </article>
+
+    </div>
+    <p id="noResults" class="empty-message" hidden>No videos found.</p>
+  </section>
+
+
+  <!-- SHORTS PAGE -->
+  <section id="shorts" class="page">
+
+    <div class="shorts-heading">
+      <h2>JIENXS Shorts</h2>
+      <p class="shorts-hint">Swipe up to watch the next video.</p>
+    </div>
+
+    <div class="shorts-feed" id="shortsFeed">
+
+      <article class="short-card">
+        <video class="short-video" controls autoplay muted loop playsinline
+          preload="metadata"
+          poster="https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=800">
+          <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4">
+          Your browser does not support video.
+        </video>
+        <div class="short-top">JIENXS SHORTS</div>
+        <div class="short-overlay">
+          <h3>@JienxsCreator</h3>
+          <p>Sample video 1. Welcome to JIENXS Shorts!</p>
+          <p>#JIENXS #Shorts</p>
         </div>
-      </div>
-    </article>
-
-    <!-- SHORT 4 -->
-
-    <article class="short-card">
-      <video
-        class="short-video"
-        src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
-        autoplay
-        muted
-        loop
-        playsinline
-        controls
-        preload="metadata">
-      </video>
-
-      <div class="short-top">
-        <strong>▶ JIENXS</strong>
-        <span class="short-label">Sports</span>
-      </div>
-
-      <div class="short-overlay">
-        <strong>@StreetSkills</strong>
-        <p>Fast moves and incredible freestyle!</p>
-        <p>#Sports #Freestyle #Jienxs</p>
-      </div>
-
-      <div class="short-actions">
-        <div>
-          <button onclick="toggleLike(this)">♥</button>
-          <small class="like-count">0</small>
+        <div class="short-actions">
+          <button onclick="likeShort(this)">♡<br><small>Like</small></button>
+          <button onclick="commentShort()">▢<br><small>Comment</small></button>
+          <button onclick="shareShort()">↗<br><small>Share</small></button>
         </div>
-        <div>
-          <button onclick="commentDemo()">●</button>
-          <small>Comment</small>
+      </article>
+
+      <article class="short-card">
+        <video class="short-video" controls muted loop playsinline
+          preload="metadata"
+          poster="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=800">
+          <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4" type="video/mp4">
+          Your browser does not support video.
+        </video>
+        <div class="short-top">JIENXS SHORTS</div>
+        <div class="short-overlay">
+          <h3>@JienxsGaming</h3>
+          <p>Sample video 2. Discover more on JIENXS.</p>
+          <p>#Gaming #JIENXS</p>
         </div>
-        <div>
-          <button onclick="sharePage()">↗</button>
-          <small>Share</small>
+        <div class="short-actions">
+          <button onclick="likeShort(this)">♡<br><small>Like</small></button>
+          <button onclick="commentShort()">▢<br><small>Comment</small></button>
+          <button onclick="shareShort()">↗<br><small>Share</small></button>
         </div>
-      </div>
-    </article>
+      </article>
 
-  </div>
+      <article class="short-card">
+        <video class="short-video" controls muted loop playsinline
+          preload="metadata"
+          poster="https://images.unsplash.com/photo-1517649763962-0c623066013b?w=800">
+          <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4" type="video/mp4">
+          Your browser does not support video.
+        </video>
+        <div class="short-top">JIENXS SHORTS</div>
+        <div class="short-overlay">
+          <h3>@JienxsSkills</h3>
+          <p>Sample video 3. Watch and discover.</p>
+          <p>#Skills #JIENXS</p>
+        </div>
+        <div class="short-actions">
+          <button onclick="likeShort(this)">♡<br><small>Like</small></button>
+          <button onclick="commentShort()">▢<br><small>Comment</small></button>
+          <button onclick="shareShort()">↗<br><small>Share</small></button>
+        </div>
+      </article>
 
-  <p class="short-hint">↑ Swipe up inside the feed for the next Short ↓</p>
+      <article class="short-card">
+        <video class="short-video" controls muted loop playsinline
+          preload="metadata"
+          poster="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800">
+          <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4" type="video/mp4">
+          Your browser does not support video.
+        </video>
+        <div class="short-top">JIENXS SHORTS</div>
+        <div class="short-overlay">
+          <h3>@JienxsDiscover</h3>
+          <p>Sample video 4. There is more to discover.</p>
+          <p>#Discover #JIENXS</p>
+        </div>
+        <div class="short-actions">
+          <button onclick="likeShort(this)">♡<br><small>Like</small></button>
+          <button onclick="commentShort()">▢<br><small>Comment</small></button>
+          <button onclick="shareShort()">↗<br><small>Share</small></button>
+        </div>
+      </article>
 
-</section>
+    </div>
+  </section>
 
-<!-- EXPLORE PAGE -->
 
-<section id="explore" class="page">
-  <h2 class="section-title">Explore Jienxs</h2>
-  <p class="meta">Choose a category to discover content.</p>
+  <!-- EXPLORE PAGE -->
+  <section id="explore" class="page">
+    <h1>Explore JIENXS</h1>
+    <p class="shorts-hint">Choose a category to explore videos.</p>
 
-  <div class="filters">
-    <button class="chip" onclick="goCategory('Football')">⚽ Football</button>
-    <button class="chip" onclick="goCategory('Gaming')">🎮 Gaming</button>
-    <button class="chip" onclick="goCategory('Skills')">🔥 Skills</button>
-    <button class="chip" onclick="goCategory('Other')">🎬 Other</button>
-  </div>
+    <div class="categories" style="margin-top:20px">
+      <button class="category-btn" onclick="filterCategory('Football')">⚽ Football</button>
+      <button class="category-btn" onclick="filterCategory('Gaming')">🎮 Gaming</button>
+      <button class="category-btn" onclick="filterCategory('Skills')">🔥 Skills</button>
+      <button class="category-btn" onclick="filterCategory('Other')">🌍 Other</button>
+    </div>
 
-  <div class="video-grid" id="exploreGrid"></div>
-</section>
+    <div class="panel">
+      <h2>Discover creators and videos</h2>
+      <p>Explore different categories, find videos and discover what people are sharing on JIENXS.</p>
+      <button class="primary-btn" style="margin-top:18px" onclick="showPage('home')">
+        Browse videos
+      </button>
+    </div>
+  </section>
 
-<!-- UPLOAD PAGE -->
 
-<section id="upload" class="page">
-  <h2 class="section-title">Upload to Jienxs</h2>
+  <!-- UPLOAD PAGE -->
+  <section id="upload" class="page">
+    <h1>Upload a video</h1>
 
-  <div class="hero">
-    <h2>Share your video</h2>
-    <p>
-      The creator upload system is coming in a later stage.
-      This preview does not permanently upload or publish videos.
-    </p>
-
-    <button class="btn" onclick="alert('Real uploads will be enabled after we connect secure video storage and user accounts.')">
-      Creator upload coming soon
-    </button>
-  </div>
-</section>
-
-<footer>
-  © 2026 JIENXS · Watch. Share. Discover.
-</footer>
+    <div class="upload-box">
+      <h2>Share your videos on JIENXS</h2>
+      <p>Video uploads will be enabled after we connect a secure video-storage backend.</p>
+      <p>This demo website cannot permanently upload videos yet.</p>
+      <button class="primary-btn" onclick="alert('Real uploads are coming after the backend is connected.')">
+        Upload coming soon
+      </button>
+    </div>
+  </section>
 
 </main>
-</div>
 
-<!-- JOIN MODAL -->
 
-<div class="modal" id="joinModal"
-  onclick="if(event.target===this)closeModal()">
+<footer>
+  <p>© 2026 JIENXS. Watch. Share. Discover.</p>
+</footer>
 
-  <div class="modal-box">
-    <button class="close" onclick="closeModal()">×</button>
 
-    <h2>Join <span class="green">JIENXS</span></h2>
-    <p>Create an account to join the community.</p>
-
-    <input placeholder="Your display name">
-    <input type="email" placeholder="Email address">
-    <input type="password" placeholder="Password">
-
-    <button class="btn" style="width:100%"
-      onclick="alert('Account registration will be connected in a later step.')">
-      Continue
+<!-- LOGIN MODAL -->
+<div class="modal" id="loginModal" onclick="closeOutside(event, 'loginModal')">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeModal('loginModal')">×</button>
+    <h2>Join JIENXS</h2>
+    <p class="shorts-hint">This is a demonstration form. Accounts are not connected yet.</p>
+    <input type="text" placeholder="Your username">
+    <input type="email" placeholder="Your email">
+    <input type="password" placeholder="Create a password">
+    <button class="primary-btn" style="width:100%" onclick="demoJoin()">
+      Join JIENXS
     </button>
-
-    <p class="notice">
-      Demo screen only. Account creation and login are not connected yet.
-    </p>
   </div>
 </div>
+
+
+<!-- VIDEO PLAYER MODAL -->
+<div class="modal" id="videoModal" onclick="closeOutside(event, 'videoModal')">
+  <div class="modal-content">
+    <button class="close-btn" onclick="closeVideo()">×</button>
+    <h2>JIENXS Video</h2>
+    <video id="videoPlayer" controls playsinline>
+      Your browser does not support video.
+    </video>
+  </div>
+</div>
+
 
 <script>
+/* PAGE NAVIGATION */
 
-/* HOME VIDEO DATA */
+function showPage(pageName) {
+  const pages = document.querySelectorAll('.page');
 
-const videos = [
- {
-  title:"Top football moments and amazing goals",
-  category:"Football",
-  creator:"Jienxs Sports",
-  views:"2.4K views",
-  duration:"04:32",
-  image:"https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=700"
- },
- {
-  title:"The beautiful game: skills and tricks",
-  category:"Skills",
-  creator:"Skill Zone",
-  views:"980 views",
-  duration:"02:18",
-  image:"https://images.unsplash.com/photo-1517466787929-bc90951d0974?w=700"
- },
- {
-  title:"Gaming highlights and epic plays",
-  category:"Gaming",
-  creator:"Game Central",
-  views:"5.1K views",
-  duration:"08:10",
-  image:"https://images.unsplash.com/photo-1542751371-adc38448a05e?w=700"
- },
- {
-  title:"Training hard to become better",
-  category:"Football",
-  creator:"The Academy",
-  views:"1.2K views",
-  duration:"03:45",
-  image:"https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=700"
- },
- {
-  title:"A world of creativity and entertainment",
-  category:"Other",
-  creator:"Creative Hub",
-  views:"760 views",
-  duration:"05:22",
-  image:"https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=700"
- },
- {
-  title:"Fast moves and incredible freestyle",
-  category:"Skills",
-  creator:"Street Skills",
-  views:"3.3K views",
-  duration:"01:56",
-  image:"https://images.unsplash.com/photo-1521412644187-c49fa049e84d?w=700"
- }
-];
+  pages.forEach(page => {
+    page.classList.remove('active');
+  });
 
-let category = "All";
+  const selectedPage = document.getElementById(pageName);
 
-/* VIDEO CARDS */
+  if (!selectedPage) {
+    console.error('Page not found:', pageName);
+    return;
+  }
 
-function card(v) {
- return `
- <article class="video-card"
- onclick="playDemo('${v.title.replace(/'/g,"")}')">
+  selectedPage.classList.add('active');
 
-  <div class="thumb">
-   <img src="${v.image}" alt="">
-   <span class="play">▶</span>
-   <span class="duration">${v.duration}</span>
-  </div>
+  document.querySelectorAll('.nav button').forEach(button => {
+    button.classList.toggle(
+      'active',
+      button.dataset.page === pageName
+    );
+  });
 
-  <div class="video-info">
-   <div class="avatar">▶</div>
-   <div>
-    <h3>${v.title}</h3>
-    <div class="meta">
-     ${v.creator}<br>
-     ${v.views} · ${v.category}
-    </div>
-   </div>
-  </div>
+  if (pageName === 'shorts') {
+    playVisibleShort();
+  } else {
+    pauseAllShorts();
+  }
 
- </article>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* RENDER VIDEOS */
+document.querySelectorAll('.nav button').forEach(button => {
+  button.addEventListener('click', () => {
+    showPage(button.dataset.page);
+  });
+});
 
-function renderVideos() {
- const q = document.getElementById('search').value.toLowerCase();
 
- const list = videos.filter(v =>
-  (category === 'All' || v.category === category) &&
-  (v.title + ' ' + v.creator + ' ' + v.category)
-   .toLowerCase().includes(q)
- );
+/* SHORTS VIDEO PLAYBACK */
 
- document.getElementById('videoGrid').innerHTML =
-  list.length
-  ? list.map(card).join('')
-  : '<p class="empty">No videos found. Try another search or category.</p>';
+const shortsFeed = document.getElementById('shortsFeed');
 
- document.getElementById('exploreGrid').innerHTML =
-  videos.map(card).join('');
+function pauseAllShorts() {
+  document.querySelectorAll('.short-video').forEach(video => {
+    video.pause();
+  });
 }
 
-/* CATEGORY FILTER */
+function playVisibleShort() {
+  const videos = document.querySelectorAll('.short-video');
 
-function setCategory(c,el) {
- category = c;
+  if (!('IntersectionObserver' in window)) {
+    if (videos.length) {
+      videos[0].play().catch(() => {});
+    }
+    return;
+  }
 
- document.querySelectorAll('#filters .chip')
-  .forEach(x => x.classList.remove('active'));
+  videos.forEach(video => {
+    video.pause();
+  });
 
- el.classList.add('active');
- renderVideos();
+  if (window.shortObserver) {
+    window.shortObserver.disconnect();
+  }
+
+  window.shortObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      const video = entry.target;
+
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.6) {
+        video.muted = true;
+        video.play().catch(() => {
+          // The user can tap the video play control.
+        });
+      } else {
+        video.pause();
+      }
+    });
+  }, {
+    root: shortsFeed,
+    threshold: [0, 0.6, 1]
+  });
+
+  videos.forEach(video => {
+    window.shortObserver.observe(video);
+  });
 }
 
-function goCategory(c) {
- category = c;
 
- showPage('home',document.querySelector('.nav'));
- renderVideos();
+/* LIKE, COMMENT AND SHARE */
+
+function likeShort(button) {
+  button.classList.toggle('liked');
+
+  if (button.classList.contains('liked')) {
+    button.innerHTML = '♥<br><small>Liked</small>';
+  } else {
+    button.innerHTML = '♡<br><small>Like</small>';
+  }
 }
 
-/* NAVIGATION */
-
-function showPage(id,el) {
- document.querySelectorAll('.page')
-  .forEach(p => p.classList.remove('active'));
-
- document.getElementById(id).classList.add('active');
-
- document.querySelectorAll('.nav')
-  .forEach(n => n.classList.remove('active'));
-
- if(el) el.classList.add('active');
-
- window.scrollTo(0,0);
-
- if(id === 'shorts') {
-   playShorts();
- } else {
-   pauseShorts();
- }
+function commentShort() {
+  alert('Comments will be enabled when JIENXS accounts and database are connected.');
 }
 
-/* PLAY SHORTS WHEN OPEN */
+async function shareShort() {
+  const shareData = {
+    title: 'JIENXS Shorts',
+    text: 'Watch videos on JIENXS!',
+    url: window.location.href
+  };
 
-function playShorts() {
- const feed = document.getElementById('shortsFeed');
-
- const observer = new IntersectionObserver(entries => {
-   entries.forEach(entry => {
-     const video = entry.target.querySelector('video');
-
-     if(!video) return;
-
-     if(entry.isIntersecting && document.getElementById('shorts').classList.contains('active')) {
-       video.play().catch(() => {});
-     } else {
-       video.pause();
-     }
-   });
- }, {
-   root:feed,
-   threshold:0.65
- });
-
- document.querySelectorAll('.short-card').forEach(card => {
-   observer.observe(card);
- });
-}
-
-function pauseShorts() {
- document.querySelectorAll('.short-video').forEach(video => {
-   video.pause();
- });
-}
-
-/* JOIN MODAL */
-
-function openModal() {
- document.getElementById('joinModal').classList.add('open
+  try {
+    if (navigator.share) {
+      await navigator.share(shareData);
+    } else if (navigator.clipboard) {
+      await navigator.clipboard.writeText(window.location.href);
+      alert('Website link copied!');
+    } else {
+      alert('Copy this website link to share: ' + window.location.href);
+    }
+  }
