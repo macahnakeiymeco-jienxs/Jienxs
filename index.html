@@ -1307,6 +1307,309 @@ document.getElementById("searchInput")
 
 initializeJIENXS();
 
+// ======================================
+// JIENXS REAL LIKES AND COMMENTS
+// ======================================
+
+function createVideoCard(video) {
+  const card = document.createElement("article");
+  card.className = "video-card";
+
+  const player = document.createElement("video");
+  player.src = video.video_url;
+  player.controls = true;
+  player.preload = "metadata";
+  player.playsInline = true;
+
+  const info = document.createElement("div");
+  info.className = "video-info";
+
+  const title = document.createElement("h3");
+  title.textContent = video.title || "Untitled video";
+
+  const creator = document.createElement("p");
+  creator.textContent =
+    (video.creator_name || "JIENXS Creator") +
+    " • " + (video.category || "Other");
+
+  const description = document.createElement("p");
+  description.textContent = video.description || "";
+
+  const actions = document.createElement("div");
+  actions.className = "video-actions";
+
+  const likeButton = document.createElement("button");
+  likeButton.className = "small-button";
+  likeButton.textContent = "❤️ Loading...";
+
+  const commentButton = document.createElement("button");
+  commentButton.className = "small-button";
+  commentButton.textContent = "💬 Comments";
+
+  const commentArea = document.createElement("div");
+  commentArea.style.marginTop = "12px";
+  commentArea.style.display = "none";
+
+  const commentList = document.createElement("div");
+
+  const commentInput = document.createElement("textarea");
+  commentInput.className = "field";
+  commentInput.placeholder = "Write a comment...";
+  commentInput.rows = 3;
+
+  const sendButton = document.createElement("button");
+  sendButton.className = "primary";
+  sendButton.textContent = "Post comment";
+
+  commentArea.append(commentList);
+
+  if (currentUser && !video.is_demo) {
+    commentArea.append(commentInput, sendButton);
+  } else {
+    const signInNote = document.createElement("p");
+    signInNote.textContent = "Sign in to post a comment.";
+    commentArea.append(signInNote);
+  }
+
+  // LOAD LIKES AND COMMENTS
+  async function refreshInteractions() {
+    if (video.is_demo) {
+      likeButton.textContent = "❤️ Likes unavailable";
+      likeButton.disabled = true;
+      commentButton.textContent = "💬 Comments unavailable";
+      commentButton.disabled = true;
+      return;
+    }
+
+    const { data: likes, error: likeError } =
+      await supabaseClient
+        .from("likes")
+        .select("user_id")
+        .eq("video_id", video.id);
+
+    if (likeError) {
+      likeButton.textContent = "❤️ Likes unavailable";
+      console.error(likeError);
+    } else {
+      const count = likes.length;
+      const liked = currentUser &&
+        likes.some(item => item.user_id === currentUser.id);
+
+      likeButton.dataset.liked = String(!!liked);
+      likeButton.textContent =
+        (liked ? "♥ Liked " : "♡ Like ") + count;
+    }
+
+    await loadComments();
+  }
+
+  // LIKE OR UNLIKE
+  likeButton.addEventListener("click", async () => {
+    if (!currentUser) {
+      alert("Please sign in to like videos.");
+      showPage("auth");
+      return;
+    }
+
+    likeButton.disabled = true;
+
+    const liked = likeButton.dataset.liked === "true";
+
+    let result;
+
+    if (liked) {
+      result = await supabaseClient
+        .from("likes")
+        .delete()
+        .eq("video_id", video.id)
+        .eq("user_id", currentUser.id);
+    } else {
+      result = await supabaseClient
+        .from("likes")
+        .insert({
+          video_id: video.id,
+          user_id: currentUser.id
+        });
+    }
+
+    likeButton.disabled = false;
+
+    if (result.error) {
+      alert("Like error: " + result.error.message);
+      return;
+    }
+
+    await refreshInteractions();
+  });
+
+  // SHOW OR HIDE COMMENTS
+  commentButton.addEventListener("click", async () => {
+    const isVisible = commentArea.style.display !== "none";
+    commentArea.style.display = isVisible ? "none" : "block";
+
+    if (!isVisible) {
+      await loadComments();
+    }
+  });
+
+  // LOAD COMMENTS
+  async function loadComments() {
+    const { data, error } = await supabaseClient
+      .from("comments")
+      .select("*")
+      .eq("video_id", video.id)
+      .order("created_at", { ascending: false });
+
+    commentList.replaceChildren();
+
+    if (error) {
+      commentList.textContent =
+        "Could not load comments: " + error.message;
+      return;
+    }
+
+    commentButton.textContent =
+      "💬 Comments (" + data.length + ")";
+
+    if (data.length === 0) {
+      commentList.textContent = "No comments yet.";
+      return;
+    }
+
+    data.forEach(comment => {
+      const item = document.createElement("div");
+      item.style.padding = "10px";
+      item.style.marginBottom = "8px";
+      item.style.background = "#22222c";
+      item.style.borderRadius = "8px";
+
+      const name = document.createElement("strong");
+      name.textContent = comment.creator_name || "JIENXS User";
+
+      const content = document.createElement("p");
+      content.textContent = comment.content;
+
+      item.append(name, content);
+
+      if (currentUser && currentUser.id === comment.user_id) {
+        const deleteCommentButton = document.createElement("button");
+        deleteCommentButton.className = "small-button";
+        deleteCommentButton.textContent = "Delete comment";
+
+        deleteCommentButton.addEventListener("click", async () => {
+          const confirmed = confirm("Delete this comment?");
+          if (!confirmed) return;
+
+          const { error: deleteError } = await supabaseClient
+            .from("comments")
+            .delete()
+            .eq("id", comment.id)
+            .eq("user_id", currentUser.id);
+
+          if (deleteError) {
+            alert(deleteError.message);
+          } else {
+            await loadComments();
+          }
+        });
+
+        item.append(deleteCommentButton);
+      }
+
+      commentList.append(item);
+    });
+  }
+
+  // POST A COMMENT
+  sendButton.addEventListener("click", async () => {
+    if (!currentUser) {
+      alert("Please sign in to comment.");
+      showPage("auth");
+      return;
+    }
+
+    const content = commentInput.value.trim();
+
+    if (!content) {
+      alert("Please write a comment first.");
+      return;
+    }
+
+    sendButton.disabled = true;
+    sendButton.textContent = "Posting...";
+
+    const { error } = await supabaseClient
+      .from("comments")
+      .insert({
+        video_id: video.id,
+        user_id: currentUser.id,
+        creator_name:
+          currentUser.user_metadata?.username ||
+          currentUser.email ||
+          "JIENXS User",
+        content: content
+      });
+
+    sendButton.disabled = false;
+    sendButton.textContent = "Post comment";
+
+    if (error) {
+      alert("Comment error: " + error.message);
+      return;
+    }
+
+    commentInput.value = "";
+    await loadComments();
+  });
+
+  // SHARE VIDEO
+  const shareButton = document.createElement("button");
+  shareButton.className = "small-button";
+  shareButton.textContent = "↗ Share";
+
+  shareButton.addEventListener("click", async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: video.title || "JIENXS video",
+          url: video.video_url
+        });
+      } else {
+        await navigator.clipboard.writeText(video.video_url);
+        alert("Video link copied!");
+      }
+    } catch (error) {
+      console.log("Share cancelled:", error);
+    }
+  });
+
+  actions.append(likeButton, commentButton, shareButton);
+
+  // KEEP CREATOR DELETE BUTTON
+  if (
+    currentUser &&
+    video.creator_id === currentUser.id &&
+    !video.is_demo
+  ) {
+    const deleteButton = document.createElement("button");
+    deleteButton.className = "small-button delete-button";
+    deleteButton.textContent = "🗑 Delete";
+
+    deleteButton.addEventListener("click", () => {
+      deleteVideo(video, deleteButton);
+    });
+
+    actions.appendChild(deleteButton);
+  }
+
+  info.append(title, creator, description, actions, commentArea);
+  card.append(player, info);
+
+  refreshInteractions();
+
+  return card;
+}
+  
 </script>
 </body>
 </html>
