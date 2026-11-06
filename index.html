@@ -2,4014 +2,3245 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#071329">
-  <meta name="description" content="JIENXS - Watch, share and discover videos.">
-  <title>JIENXS - Watch. Share. Discover.</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#071329">
+<meta name="description" content="JIENXS — Watch, share and discover videos.">
+<title>JIENXS - Watch. Share. Discover.</title>
+
+<!-- Supabase must load before the JIENXS application code -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+:root {
+  --red:#ed202b;
+  --red-dark:#bd1420;
+  --navy:#071329;
+  --navy2:#0d1d38;
+  --panel:#122442;
+  --panel2:#192f50;
+  --border:#294365;
+  --text:#f5f7fb;
+  --muted:#aab8cc;
+  --green:#22c783;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  padding:0 0 82px;
+  background:var(--navy);
+  color:var(--text);
+  font-family:Arial,sans-serif;
+}
+button { cursor:pointer; font:inherit; }
+button:disabled { opacity:.55; cursor:not-allowed; }
+.main-header {
+  position:sticky;
+  top:0;
+  z-index:50;
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 16px;
+  background:#050f22;
+  border-bottom:1px solid var(--border);
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:23px;
+  font-weight:900;
+}
+.brand-mark {
+  width:42px;
+  height:42px;
+  display:grid;
+  place-items:center;
+  border-radius:12px;
+  background:var(--red);
+  color:white;
+  font-size:25px;
+}
+.header-actions { display:flex; gap:8px; align-items:center; }
+.icon-button,.secondary-button {
+  color:white;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:10px 13px;
+}
+.notification-button { position:relative; font-size:20px; }
+.notification-badge {
+  position:absolute;
+  top:-7px;
+  right:-7px;
+  min-width:19px;
+  height:19px;
+  padding:2px 5px;
+  border-radius:20px;
+  background:var(--red);
+  color:white;
+  font-size:11px;
+  font-weight:bold;
+}
+.main-nav {
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  padding:10px 12px;
+  background:var(--navy2);
+  border-bottom:1px solid var(--border);
+}
+.nav-button {
+  flex-shrink:0;
+  padding:9px 13px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  color:var(--muted);
+  background:transparent;
+}
+.nav-button.active {
+  background:var(--red);
+  border-color:var(--red);
+  color:white;
+}
+.nav-button.owner-button { color:#ffd166; }
+.main-container {
+  width:100%;
+  max-width:950px;
+  margin:auto;
+  padding:15px;
+}
+.page { display:none; }
+.page.active { display:block; }
+.page-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin:12px 0 18px;
+}
+h1,h2,h3 { margin-top:8px; }
+h1 { font-size:25px; }
+h2 { font-size:23px; }
+p { line-height:1.5; }
+.muted,.video-meta { color:var(--muted); font-size:13px; }
+.primary-button {
+  padding:12px 17px;
+  border:0;
+  border-radius:10px;
+  background:var(--red);
+  color:white;
+  font-weight:bold;
+}
+.primary-button:active { background:var(--red-dark); }
+.danger-button {
+  padding:9px 12px;
+  border:1px solid #e34a55;
+  border-radius:9px;
+  background:#761b27;
+  color:white;
+}
+.category-tabs {
+  display:flex;
+  gap:8px;
+  overflow-x:auto;
+  padding:8px 0 15px;
+}
+.category-button {
+  flex-shrink:0;
+  padding:9px 14px;
+  border:1px solid var(--border);
+  border-radius:22px;
+  color:white;
+  background:var(--panel2);
+}
+.category-button.active {
+  background:var(--red);
+  border-color:var(--red);
+}
+.video-grid {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:17px;
+}
+.video-card {
+  overflow:hidden;
+  border:1px solid var(--border);
+  border-radius:14px;
+  background:var(--panel);
+}
+.video-player {
+  display:block;
+  width:100%;
+  max-height:520px;
+  background:#000;
+  object-fit:contain;
+}
+.video-card-body { padding:13px; }
+.video-title { font-size:18px; font-weight:bold; }
+.video-description {
+  color:#dce5f2;
+  font-size:14px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+.video-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:0 13px 13px;
+}
+.video-actions button {
+  padding:9px 12px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  color:white;
+  background:var(--panel2);
+}
+.video-actions button.liked {
+  color:#ff7b84;
+  border-color:var(--red);
+}
+.form-card,.profile-card,.admin-panel {
+  margin:12px 0;
+  padding:17px;
+  border:1px solid var(--border);
+  border-radius:15px;
+  background:var(--panel);
+}
+label {
+  display:block;
+  margin-top:12px;
+  color:#dce5f2;
+  font-size:14px;
+  font-weight:bold;
+}
+input,textarea,select {
+  display:block;
+  width:100%;
+  margin:7px 0 13px;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  outline:none;
+  background:#07172f;
+  color:white;
+  font-size:15px;
+}
+input:focus,textarea:focus,select:focus {
+  border-color:var(--red);
+}
+textarea { min-height:95px; resize:vertical; }
+input[type="file"] { padding:10px; }
+.form-message {
+  display:none;
+  padding:11px;
+  margin:10px 0;
+  border-radius:9px;
+  overflow-wrap:anywhere;
+}
+.form-message.show { display:block; }
+.form-message.error { color:#ff9ca4; border:1px solid #a73542; }
+.form-message.success { color:#8de6b1; border:1px solid #258b50; }
+.profile-heading,.creator-heading {
+  display:flex;
+  align-items:center;
+  gap:13px;
+  margin-bottom:16px;
+}
+.profile-avatar {
+  display:grid;
+  place-items:center;
+  flex-shrink:0;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:var(--red);
+  font-size:25px;
+  font-weight:bold;
+}
+.profile-stats,.admin-stats {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin:15px 0;
+}
+.stat-card {
+  padding:12px 7px;
+  text-align:center;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--navy2);
+}
+.stat-card strong { display:block; font-size:20px; }
+.comment-item,.notification-item,.admin-row {
+  padding:13px;
+  margin:9px 0;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--navy2);
+  overflow-wrap:anywhere;
+}
+.comment-author { color:#ff7c85; font-weight:bold; }
+.comment-content { white-space:pre-wrap; margin:7px 0; }
+.notification-item.unread { border-left:4px solid var(--red); }
+.notification-message { font-size:14px; }
+.notification-date { color:var(--muted); font-size:12px; }
+.notification-actions,.admin-tabs {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:12px 0;
+}
+.admin-tabs button {
+  padding:9px 13px;
+  border:1px solid var(--border);
+  border-radius:20px;
+  color:white;
+  background:var(--panel2);
+}
+.admin-stat-grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.admin-stat {
+  padding:14px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:var(--navy2);
+}
+.admin-stat strong { display:block; margin-top:7px; font-size:24px; }
+.empty-state { padding:28px 10px; color:var(--muted); text-align:center; }
+.hidden { display:none!important; }
+.search-box { margin:10px 0; }
+.bottom-nav {
+  position:fixed;
+  z-index:60;
+  bottom:0;
+  left:0;
+  width:100%;
+  display:flex;
+  justify-content:space-around;
+  padding:8px 2px calc(8px + env(safe-area-inset-bottom));
+  background:#050f22;
+  border-top:1px solid var(--border);
+}
+.bottom-nav button {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:5px;
+  padding:5px;
+  border:0;
+  background:transparent;
+  color:var(--muted);
+  font-size:11px;
+}
+.bottom-nav button.active { color:#ff6670; }
+.bottom-nav .nav-icon { font-size:20px; }
+@media(min-width:650px) {
+  .main-container { padding:22px; }
+  .video-grid.two-columns { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .admin-stat-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+</style>
 </head>
 
 <body>
-
-<!-- =====================================
-     JIENXS HEADER
-===================================== -->
 
 <header class="main-header">
   <div class="brand">
     <span class="brand-mark">J</span>
     <span>JIENXS</span>
   </div>
-
   <div class="header-actions">
-    <button class="icon-button" onclick="showPage('notificationsPage')" aria-label="Notifications">
+    <button class="icon-button notification-button"
+      onclick="openNotifications()" aria-label="Notifications">
       🔔
       <span id="notificationBadge" class="notification-badge hidden">0</span>
     </button>
-
     <button id="authButton" class="secondary-button"
-      onclick="showPage('authPage')">Sign in</button>
+      onclick="showPage('authPage')">Sign In</button>
   </div>
 </header>
 
-<!-- =====================================
-     MAIN NAVIGATION
-===================================== -->
-
 <nav class="main-nav">
-  <button class="nav-button active" onclick="showPage('homePage', this)">Home</button>
-  <button class="nav-button" onclick="showPage('shortsPage', this)">Shorts</button>
-  <button class="nav-button" onclick="showPage('explorePage', this)">Explore</button>
-  <button class="nav-button" onclick="showPage('uploadPage', this)">Upload</button>
-  <button class="nav-button" onclick="showPage('profilePage', this)">Profile</button>
-  <button id="adminNavButton" class="nav-button hidden"
-    onclick="showPage('adminPage', this)">OWNER</button>
+  <button class="nav-button active" data-page="homePage"
+    onclick="showPage('homePage',this)">Home</button>
+  <button class="nav-button" data-page="shortsPage"
+    onclick="showPage('shortsPage',this)">Shorts</button>
+  <button class="nav-button" data-page="explorePage"
+    onclick="showPage('explorePage',this)">Explore</button>
+  <button class="nav-button" data-page="uploadPage"
+    onclick="showPage('uploadPage',this)">Upload</button>
+  <button class="nav-button" data-page="profilePage"
+    onclick="showPage('profilePage',this)">Profile</button>
+  <button id="adminNavButton" class="nav-button owner-button hidden"
+    data-page="adminPage" onclick="openAdminDashboard()">OWNER</button>
 </nav>
 
 <main class="main-container">
 
-<!-- =====================================
-     HOME PAGE
-===================================== -->
-
-<section id="homePage" class="page active">
-  <div class="page-heading">
-    <div>
-      <h1>Discover Videos</h1>
-      <p>Watch what's happening on JIENXS.</p>
-    </div>
-  </div>
-
-  <div class="category-tabs">
-    <button class="category-button active" onclick="setCategory('All', this)">All</button>
-    <button class="category-button" onclick="setCategory('Football', this)">Football</button>
-    <button class="category-button" onclick="setCategory('Gaming', this)">Gaming</button>
-    <button class="category-button" onclick="setCategory('Skills', this)">Skills</button>
-    <button class="category-button" onclick="setCategory('Other', this)">Other</button>
-  </div>
-
-  <div id="videoGrid" class="video-grid">
-    <p class="empty-state">Loading JIENXS videos...</p>
-  </div>
-</section>
-
-<!-- =====================================
-     SHORTS PAGE
-===================================== -->
-
-<section id="shortsPage" class="page">
-  <h1>JIENXS Shorts</h1>
-  <p>Discover short videos from creators.</p>
-
-  <div id="shortsFeed" class="shorts-feed">
-    <p class="empty-state">Short videos will appear here.</p>
-  </div>
-</section>
-
-<!-- =====================================
-     EXPLORE PAGE
-===================================== -->
-
-<section id="explorePage" class="page">
-  <h1>Explore JIENXS</h1>
-
-  <div class="search-box">
-    <input id="searchInput" type="search"
-      placeholder="Search videos or creators...">
-    <button onclick="searchVideos()">Search</button>
-  </div>
-
-  <div class="category-tabs">
-    <button class="category-button active"
-      onclick="setExploreCategory('All', this)">All</button>
-    <button class="category-button"
-      onclick="setExploreCategory('Football', this)">Football</button>
-    <button class="category-button"
-      onclick="setExploreCategory('Gaming', this)">Gaming</button>
-    <button class="category-button"
-      onclick="setExploreCategory('Skills', this)">Skills</button>
-    <button class="category-button"
-      onclick="setExploreCategory('Other', this)">Other</button>
-  </div>
-
-  <div id="exploreGrid" class="video-grid">
-    <p class="empty-state">Explore videos and creators.</p>
-  </div>
-</section>
-
-<!-- =====================================
-     UPLOAD PAGE
-===================================== -->
-
-<section id="uploadPage" class="page">
-  <h1>Upload a Video</h1>
-  <p>Share your videos with the JIENXS community.</p>
-
-  <div class="form-card">
-    <label for="videoTitle">Video title</label>
-    <input id="videoTitle" type="text"
-      placeholder="Enter your video title" maxlength="120">
-
-    <label for="videoDescription">Description</label>
-    <textarea id="videoDescription"
-      placeholder="Describe your video..."></textarea>
-
-    <label for="videoCategory">Category</label>
-    <select id="videoCategory">
-      <option value="Football">Football</option>
-      <option value="Gaming">Gaming</option>
-      <option value="Skills">Skills</option>
-      <option value="Other">Other</option>
-    </select>
-
-    <label for="videoFile">Choose video</label>
-    <input id="videoFile" type="file"
-      accept="video/*">
-
-    <button id="uploadButton" class="primary-button"
-      onclick="uploadVideo()">Upload Video</button>
-
-    <p id="uploadMessage" class="form-message"></p>
-    <div id="uploadProgress" class="upload-progress"></div>
-  </div>
-</section>
-
-<!-- =====================================
-     PROFILE PAGE
-===================================== -->
-
-<section id="profilePage" class="page">
-  <h1>Your Profile</h1>
-
-  <div class="profile-card">
-    <div id="profileAvatar" class="profile-avatar">J</div>
-    <h2 id="profileNickname">JIENXS Member</h2>
-    <p id="profileUsername">@username</p>
-    <p id="profileEmail"></p>
-
-    <div class="profile-stats">
+  <section id="homePage" class="page active">
+    <div class="page-heading">
       <div>
-        <strong id="followerCount">0</strong>
-        <span>Followers</span>
-      </div>
-      <div>
-        <strong id="followingCount">0</strong>
-        <span>Following</span>
-      </div>
-      <div>
-        <strong id="profileVideoCount">0</strong>
-        <span>Videos</span>
+        <h1>Discover Videos</h1>
+        <p class="muted">Watch, share and discover on JIENXS.</p>
       </div>
     </div>
+    <input id="searchInput" class="search-box" type="search"
+      placeholder="Search videos...">
+    <div class="category-tabs" id="homeCategories">
+      <button class="category-button active" onclick="setCategory('All',this)">All</button>
+      <button class="category-button" onclick="setCategory('Football',this)">Football</button>
+      <button class="category-button" onclick="setCategory('Gaming',this)">Gaming</button>
+      <button class="category-button" onclick="setCategory('Skills',this)">Skills</button>
+      <button class="category-button" onclick="setCategory('Other',this)">Others</button>
+    </div>
+    <div id="videoGrid" class="video-grid">
+      <p class="empty-state">Loading JIENXS videos...</p>
+    </div>
+  </section>
 
-    <label for="editUsername">Username</label>
-    <input id="editUsername" type="text" placeholder="Your username">
+  <section id="shortsPage" class="page">
+    <h1>JIENXS Shorts</h1>
+    <p class="muted">Discover videos from JIENXS creators.</p>
+    <div id="shortsFeed" class="video-grid"></div>
+  </section>
 
-    <label for="editNickname">Nickname</label>
-    <input id="editNickname" type="text" placeholder="Your nickname">
+  <section id="explorePage" class="page">
+    <h1>Explore JIENXS</h1>
+    <div class="category-tabs" id="exploreCategories">
+      <button class="category-button active" onclick="setExploreCategory('All',this)">All</button>
+      <button class="category-button" onclick="setExploreCategory('Football',this)">Football</button>
+      <button class="category-button" onclick="setExploreCategory('Gaming',this)">Gaming</button>
+      <button class="category-button" onclick="setExploreCategory('Skills',this)">Skills</button>
+      <button class="category-button" onclick="setExploreCategory('Other',this)">Others</button>
+    </div>
+    <div id="exploreGrid" class="video-grid two-columns"></div>
+  </section>
 
-    <button id="saveProfileButton" class="primary-button"
-      onclick="saveProfile()">Save Profile</button>
+  <section id="uploadPage" class="page">
+    <h1>Upload a Video</h1>
+    <div class="form-card">
+      <label for="videoTitle">Video title</label>
+      <input id="videoTitle" maxlength="120" placeholder="Enter video title">
+      <label for="videoDescription">Description</label>
+      <textarea id="videoDescription" placeholder="Write a description..."></textarea>
+      <label for="videoCategory">Category</label>
+      <select id="videoCategory">
+        <option value="Football">Football</option>
+        <option value="Gaming">Gaming</option>
+        <option value="Skills">Skills</option>
+        <option value="Other">Others</option>
+      </select>
+      <label for="videoFile">Choose video (maximum 100 MB)</label>
+      <input id="videoFile" type="file" accept="video/*">
+      <button id="uploadButton" class="primary-button" onclick="uploadVideo()">Upload Video</button>
+      <p id="uploadMessage" class="form-message"></p>
+    </div>
+  </section>
 
-    <p id="profileMessage" class="form-message"></p>
-
-    <button id="signOutButton" class="secondary-button"
-      onclick="signOut()">Sign Out</button>
-  </div>
-
-  <h2>My Videos</h2>
-  <div id="myVideos" class="video-grid"></div>
-</section>
-
-<!-- =====================================
-     SIGN IN AND SIGN UP
-===================================== -->
-
-<section id="authPage" class="page">
-  <h1>Welcome to JIENXS</h1>
-
-  <div class="form-card">
-    <h2>Create Account</h2>
-
-    <label for="authUsername">Username</label>
-    <input id="authUsername" type="text" placeholder="Choose username">
-
-    <label for="authNickname">Nickname</label>
-    <input id="authNickname" type="text" placeholder="Choose nickname">
-
-    <label for="authEmail">Email</label>
-    <input id="authEmail" type="email" placeholder="Email address">
-
-    <label for="authPassword">Password</label>
-    <input id="authPassword" type="password" placeholder="Password">
-
-    <button id="signUpButton" class="primary-button"
-      onclick="signUp()">Create Account</button>
-
-    <p id="authMessage" class="form-message"></p>
-  </div>
-
-  <div class="form-card">
-    <h2>Sign In</h2>
-
-    <label for="loginEmail">Email</label>
-    <input id="loginEmail" type="email" placeholder="Email address">
-
-    <label for="loginPassword">Password</label>
-    <input id="loginPassword" type="password" placeholder="Password">
-
-    <button id="signInButton" class="primary-button"
-      onclick="signIn()">Sign In</button>
-
-    <p id="loginMessage" class="form-message"></p>
-  </div>
-</section>
-
-<!-- =====================================
-     COMMENTS PAGE
-===================================== -->
-
-<section id="commentsPage" class="page">
-  <button class="secondary-button" onclick="goBack()">← Back</button>
-  <h1>Comments</h1>
-
-  <div id="commentsVideoInfo"></div>
-
-  <div class="comment-form">
-    <textarea id="commentInput"
-      placeholder="Write a comment..."></textarea>
-
-    <button class="primary-button"
-      onclick="postComment()">Post Comment</button>
-
-    <p id="commentMessage" class="form-message"></p>
-  </div>
-
-  <div id="commentsList">
-    <p class="empty-state">Comments will appear here.</p>
-  </div>
-</section>
-
-<!-- =====================================
-     NOTIFICATIONS PAGE
-===================================== -->
-
-<section id="notificationsPage" class="page">
-  <h1>🔔 Notifications</h1>
-  <p>Stay updated with your JIENXS community.</p>
-
-  <div class="notification-actions">
-    <button class="secondary-button"
-      onclick="markAllNotificationsRead()">Mark all as read</button>
-
-    <button class="secondary-button"
-      onclick="loadNotifications()">Refresh</button>
-  </div>
-
-  <div id="notificationsList">
-    <p class="empty-state">Your notifications will appear here.</p>
-  </div>
-</section>
-
-<!-- =====================================
-     CREATOR PROFILE PAGE
-===================================== -->
-
-<section id="creatorPage" class="page">
-  <button class="secondary-button" onclick="goBack()">← Back</button>
-
-  <div class="creator-card">
-    <div id="creatorAvatar" class="profile-avatar">J</div>
-    <h2 id="creatorNickname">Creator</h2>
-    <p id="creatorUsername">@creator</p>
-
-    <div class="profile-stats">
-      <div>
-        <strong id="creatorFollowerCount">0</strong>
-        <span>Followers</span>
+  <section id="profilePage" class="page">
+    <h1>Your JIENXS Profile</h1>
+    <div class="profile-card">
+      <div class="profile-heading">
+        <div id="profileAvatar" class="profile-avatar">J</div>
+        <div>
+          <strong id="profileNickname">JIENXS User</strong>
+          <div id="profileUsername" class="video-meta">@guest</div>
+          <div id="profileEmail" class="video-meta"></div>
+        </div>
       </div>
-      <div>
-        <strong id="creatorVideoCount">0</strong>
-        <span>Videos</span>
+      <div class="profile-stats">
+        <div class="stat-card"><strong id="followerCount">0</strong><span class="muted">Followers</span></div>
+        <div class="stat-card"><strong id="followingCount">0</strong><span class="muted">Following</span></div>
+        <div class="stat-card"><strong id="profileVideoCount">0</strong><span class="muted">Videos</span></div>
       </div>
+      <label for="editUsername">Username</label>
+      <input id="editUsername" placeholder="Your username">
+      <label for="editNickname">Nickname</label>
+      <input id="editNickname" placeholder="Your display name">
+      <button id="saveProfileButton" class="primary-button" onclick="saveProfile()">Save Profile</button>
+      <p id="profileMessage" class="form-message"></p>
+      <button id="signOutButton" class="secondary-button" onclick="signOut()">Sign Out</button>
     </div>
+    <h2>My Uploaded Videos</h2>
+    <div id="myVideos" class="video-grid"></div>
+  </section>
 
-    <button id="followButton" class="primary-button"
-      onclick="toggleFollow()">Follow</button>
-  </div>
-
-  <h2>Creator Videos</h2>
-  <div id="creatorVideos" class="video-grid"></div>
-</section>
-
-<!-- =====================================
-     OWNER DASHBOARD
-===================================== -->
-
-<section id="adminPage" class="page">
-  <div class="page-heading">
-    <div>
-      <h1>OWNER CONTROL CENTER</h1>
-      <p>Manage your JIENXS platform.</p>
+  <section id="authPage" class="page">
+    <h1>JIENXS Account</h1>
+    <div class="form-card">
+      <h2>Create Account</h2>
+      <label for="authUsername">Username</label>
+      <input id="authUsername" placeholder="e.g. mecoboy">
+      <label for="authNickname">Nickname</label>
+      <input id="authNickname" placeholder="Your display name">
+      <label for="authEmail">Email</label>
+      <input id="authEmail" type="email" placeholder="Email address">
+      <label for="authPassword">Password</label>
+      <input id="authPassword" type="password" placeholder="At least 6 characters">
+      <button id="signUpButton" class="primary-button" onclick="signUp()">Create Account</button>
+      <p id="authMessage" class="form-message"></p>
     </div>
-    <span class="owner-label">OWNER</span>
-  </div>
-
-  <div id="adminIdentity" class="admin-identity"></div>
-
-  <div class="admin-stats">
-    <div class="stat-card">
-      <span>Users</span>
-      <strong id="adminUserCount">0</strong>
+    <div class="form-card">
+      <h2>Sign In</h2>
+      <label for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" placeholder="Email address">
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" placeholder="Password">
+      <button id="signInButton" class="primary-button" onclick="signIn()">Sign In</button>
+      <p id="loginMessage" class="form-message"></p>
     </div>
+  </section>
 
-    <div class="stat-card">
-      <span>Total Videos</span>
-      <strong id="adminVideoCount">0</strong>
+  <section id="commentsPage" class="page">
+    <h1>Video Comments</h1>
+    <button class="secondary-button" onclick="showPage('homePage')">← Back to videos</button>
+    <div id="commentsVideoInfo"></div>
+    <div id="commentsList"></div>
+    <div class="form-card">
+      <label for="commentInput">Write a comment</label>
+      <textarea id="commentInput" placeholder="Write your comment..."></textarea>
+      <button id="commentButton" class="primary-button" onclick="submitComment()">Post Comment</button>
+      <p id="commentMessage" class="form-message"></p>
     </div>
+  </section>
 
-    <div class="stat-card">
-      <span>Published</span>
-      <strong id="adminPublishedCount">0</strong>
+  <section id="notificationsPage" class="page">
+    <h1>Notifications</h1>
+    <div class="notification-actions">
+      <button class="secondary-button" onclick="markAllNotificationsRead()">Mark All as Read</button>
+      <button class="secondary-button" onclick="loadNotifications()">Refresh</button>
     </div>
-
-    <div class="stat-card">
-      <span>Comments</span>
-      <strong id="adminCommentCount">0</strong>
+    <div id="notificationsList">
+      <p class="empty-state">Your notifications will appear here.</p>
     </div>
-  </div>
+  </section>
 
-  <div class="admin-tabs">
-    <button onclick="showAdminSection('overview')">Overview</button>
-    <button onclick="showAdminSection('videos')">Videos</button>
-    <button onclick="showAdminSection('comments')">Comments</button>
-    <button onclick="showAdminSection('users')">Users</button>
-  </div>
+  <section id="creatorPage" class="page">
+    <button class="secondary-button" onclick="showPage('homePage')">← Back</button>
+    <div class="profile-card">
+      <div class="creator-heading">
+        <div id="creatorAvatar" class="profile-avatar">J</div>
+        <div>
+          <strong id="creatorNickname">Creator</strong>
+          <div id="creatorUsername" class="video-meta">@creator</div>
+        </div>
+      </div>
+      <div class="profile-stats">
+        <div class="stat-card"><strong id="creatorFollowerCount">0</strong><span class="muted">Followers</span></div>
+        <div class="stat-card"><strong id="creatorVideoCount">0</strong><span class="muted">Videos</span></div>
+      </div>
+      <button id="followButton" class="primary-button" onclick="toggleFollow()">Follow</button>
+    </div>
+    <div id="creatorVideos" class="video-grid"></div>
+  </section>
 
-  <div id="adminContent">
-    <p class="empty-state">Owner dashboard loading...</p>
-  </div>
-</section>
+  <section id="adminPage" class="page">
+    <h1>JIENXS OWNER CONTROL CENTER</h1>
+    <div class="form-card">
+      <strong>Founder, Owner & Super Admin</strong>
+      <p id="adminIdentity" class="muted">Private owner dashboard</p>
+    </div>
+    <div class="admin-stat-grid">
+      <div class="admin-stat">Total Users<strong id="adminUserCount">—</strong></div>
+      <div class="admin-stat">Total Videos<strong id="adminVideoCount">—</strong></div>
+      <div class="admin-stat">Published Videos<strong id="adminPublishedCount">—</strong></div>
+      <div class="admin-stat">Comments<strong id="adminCommentCount">—</strong></div>
+    </div>
+    <div class="admin-tabs">
+      <button onclick="loadAdminSection('overview',this)">Overview</button>
+      <button onclick="loadAdminSection('videos',this)">Videos</button>
+      <button onclick="loadAdminSection('comments',this)">Comments</button>
+      <button onclick="loadAdminSection('users',this)">Users</button>
+    </div>
+    <div id="adminContent" class="admin-panel">
+      <p class="empty-state">Owner dashboard</p>
+    </div>
+  </section>
 
 </main>
 
-<!-- =====================================
-     BOTTOM NAVIGATION
-===================================== -->
-
-<footer class="bottom-nav">
-  <button onclick="showPage('homePage')">
-    <span>⌂</span>Home
+<nav class="bottom-nav">
+  <button class="active" data-page="homePage" onclick="showPage('homePage',this)">
+    <span class="nav-icon">⌂</span><span>Home</span>
   </button>
-
-  <button onclick="showPage('shortsPage')">
-    <span>▶</span>Shorts
+  <button data-page="shortsPage" onclick="showPage('shortsPage',this)">
+    <span class="nav-icon">▶</span><span>Shorts</span>
   </button>
-
-  <button onclick="showPage('explorePage')">
-    <span>⌕</span>Explore
+  <button data-page="explorePage" onclick="showPage('explorePage',this)">
+    <span class="nav-icon">⌕</span><span>Explore</span>
   </button>
-
-  <button onclick="showPage('uploadPage')">
-    <span>＋</span>Upload
+  <button data-page="uploadPage" onclick="showPage('uploadPage',this)">
+    <span class="nav-icon">＋</span><span>Upload</span>
   </button>
-
-  <button onclick="showPage('profilePage')">
-    <span>●</span>Profile
+  <button data-page="profilePage" onclick="showPage('profilePage',this)">
+    <span class="nav-icon">●</span><span>Profile</span>
   </button>
-
-  <button id="bottomOwnerButton" class="hidden"
-    onclick="showPage('adminPage')">
-    <span>★</span>OWNER
-  </button>
-</footer>
-
-<!-- PART 2 CSS WILL BE ADDED NEXT -->
-</body>
-        </html>
-    
-<style>
-/* =====================================
-   JIENXS GLOBAL DESIGN
-===================================== */
-
-:root {
-  --red: #ed202b;
-  --red-dark: #bd1420;
-  --navy: #071329;
-  --navy2: #0d1d38;
-  --panel: #10223f;
-  --panel2: #172d4d;
-  --border: #243b5d;
-  --text: #f5f7fb;
-  --muted: #aab8cc;
-  --green: #22c783;
-  --radius: 15px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background: var(--navy);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  min-height: 100vh;
-  padding-bottom: 90px;
-}
-
-button, input, textarea, select {
-  font: inherit;
-}
-
-button {
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.1);
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* =====================================
-   HEADER
-===================================== */
-
-.main-header {
-  min-height: 68px;
-  padding: 12px 5%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  background: #050e20;
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 23px;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-
-.brand-mark {
-  width: 38px;
-  height: 38px;
-  background: var(--red);
-  display: grid;
-  place-items: center;
-  border-radius: 11px;
-  font-size: 25px;
-  font-weight: 900;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.icon-button {
-  position: relative;
-  border: 1px solid var(--border);
-  color: white;
-  background: var(--panel);
-  padding: 10px;
-  border-radius: 10px;
-}
-
-.notification-badge {
-  position: absolute;
-  top: -7px;
-  right: -7px;
-  background: var(--red);
-  border: 2px solid var(--navy);
-  border-radius: 20px;
-  padding: 2px 6px;
-  min-width: 20px;
-  font-size: 11px;
-  font-weight: bold;
-}
-
-/* =====================================
-   MAIN NAVIGATION
-===================================== */
-
-.main-nav {
-  display: flex;
-  gap: 8px;
-  padding: 12px 5%;
-  overflow-x: auto;
-  background: var(--navy2);
-  border-bottom: 1px solid var(--border);
-  scrollbar-width: none;
-}
-
-.main-nav::-webkit-scrollbar {
-  display: none;
-}
-
-.nav-button {
-  color: var(--muted);
-  background: transparent;
-  border: 0;
-  padding: 10px 15px;
-  border-radius: 9px;
-  white-space: nowrap;
-  font-weight: 700;
-}
-
-.nav-button.active,
-.nav-button:hover {
-  background: var(--red);
-  color: white;
-}
-
-/* =====================================
-   PAGE LAYOUT
-===================================== */
-
-.main-container {
-  width: 100%;
-  max-width: 1250px;
-  margin: auto;
-  padding: 22px 5%;
-}
-
-.page {
-  display: none;
-  animation: fadeIn 0.25s ease;
-}
-
-.page.active {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-h1 {
-  font-size: clamp(24px, 5vw, 34px);
-  margin: 8px 0 10px;
-}
-
-h2 {
-  font-size: 21px;
-}
-
-p {
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.page-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* =====================================
-   BUTTONS
-===================================== */
-
-.primary-button,
-.secondary-button {
-  border: 0;
-  border-radius: 9px;
-  padding: 12px 17px;
-  font-weight: 700;
-}
-
-.primary-button {
-  background: var(--red);
-  color: white;
-}
-
-.primary-button:hover {
-  background: var(--red-dark);
-}
-
-.secondary-button {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  color: white;
-}
-
-/* =====================================
-   CATEGORIES
-===================================== */
-
-.category-tabs {
-  display: flex;
-  gap: 9px;
-  overflow-x: auto;
-  padding: 15px 0;
-  scrollbar-width: none;
-}
-
-.category-button {
-  background: var(--panel);
-  color: var(--muted);
-  border: 1px solid var(--border);
-  border-radius: 30px;
-  padding: 9px 17px;
-  white-space: nowrap;
-}
-
-.category-button.active {
-  background: var(--red);
-  color: white;
-  border-color: var(--red);
-}
-
-/* =====================================
-   VIDEO GRID
-===================================== */
-
-.video-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.video-card {
-  min-width: 0;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.video-card video {
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  object-fit: contain;
-  display: block;
-  background: #000;
-}
-
-.video-card-body {
-  padding: 13px;
-}
-
-.video-card h3 {
-  font-size: 16px;
-  margin: 3px 0 7px;
-  overflow-wrap: anywhere;
-}
-
-.video-meta {
-  color: var(--muted);
-  font-size: 12px;
-}
-
-.video-description {
-  color: var(--muted);
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
-
-.video-actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.video-actions button {
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  color: white;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 12px;
-}
-
-.video-actions button.liked {
-  background: var(--red);
-  border-color: var(--red);
-}
-
-.delete-button {
-  background: #7d1520 !important;
-  border-color: #b92b38 !important;
-}
-
-/* =====================================
-   SHORTS FEED
-===================================== */
-
-.shorts-feed {
-  max-width: 480px;
-  margin: 20px auto;
-}
-
-.short-card {
-  background: #000;
-  border-radius: 15px;
-  overflow: hidden;
-  margin-bottom: 22px;
-  position: relative;
-}
-
-.short-card video {
-  width: 100%;
-  max-height: 75vh;
-  aspect-ratio: 9 / 16;
-  object-fit: contain;
-  background: #000;
-  display: block;
-}
-
-.short-card-info {
-  padding: 14px;
-  background: var(--panel);
-}
-
-/* =====================================
-   FORMS
-===================================== */
-
-.form-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 20px;
-  margin: 20px 0;
-  max-width: 620px;
-}
-
-label {
-  display: block;
-  font-size: 13px;
-  font-weight: bold;
-  margin: 15px 0 7px;
-  color: var(--text);
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 13px;
-  color: white;
-  background: #07172e;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  outline: none;
-  margin-bottom: 10px;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  border-color: var(--red);
-}
-
-textarea {
-  min-height: 100px;
-  resize: vertical;
-}
-
-input[type="file"] {
-  padding: 10px;
-}
-
-.form-card .primary-button {
-  width: 100%;
-  margin-top: 12px;
-}
-
-.form-message {
-  font-size: 13px;
-  min-height: 18px;
-}
-
-.upload-progress {
-  height: 5px;
-  background: var(--panel2);
-  border-radius: 10px;
-  overflow: hidden;
-  margin-top: 10px;
-}
-
-/* =====================================
-   PROFILE
-===================================== */
-
-.profile-card,
-.creator-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px;
-  text-align: center;
-  max-width: 620px;
-  margin: 20px auto;
-}
-
-.profile-avatar {
-  width: 85px;
-  height: 85px;
-  margin: auto;
-  display: grid;
-  place-items: center;
-  background: var(--red);
-  border-radius: 50%;
-  font-size: 35px;
-  font-weight: 900;
-}
-
-.profile-stats {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin: 20px 0;
-}
-
-.profile-stats div {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.profile-stats strong {
-  font-size: 20px;
-}
-
-.profile-stats span {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* =====================================
-   COMMENTS
-===================================== */
-
-.comment-form {
-  margin: 20px 0;
-}
-
-.comment-item {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  padding: 14px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.comment-item p {
-  margin: 7px 0;
-  overflow-wrap: anywhere;
-}
-
-.comment-item button {
-  background: transparent;
-  color: #ff6b75;
-  border: 0;
-  font-size: 12px;
-}
-
-/* =====================================
-   NOTIFICATIONS
-===================================== */
-
-.notification-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-  margin: 18px 0;
-}
-
-.notification-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 10px;
-}
-
-.notification-item.unread {
-  border-left: 4px solid var(--red);
-  background: var(--navy2);
-}
-
-.notification-icon {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
-  border-radius: 50%;
-  background: var(--red);
-  display: grid;
-  place-items: center;
-  font-size: 19px;
-}
-
-.notification-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.notification-message {
-  font-size: 14px;
-  color: white;
-}
-
-.notification-date {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-
-/* =====================================
-   OWNER DASHBOARD
-===================================== */
-
-.owner-label {
-  color: white;
-  background: var(--red);
-  border-radius: 8px;
-  padding: 9px 14px;
-  font-weight: 900;
-}
-
-.admin-identity {
-  background: var(--panel);
-  padding: 14px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  margin: 15px 0;
-}
-
-.admin-stats {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  margin: 18px 0;
-}
-
-.stat-card {
-  padding: 17px;
-  border-radius: 12px;
-  background: var(--panel);
-  border: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-}
-
-.stat-card span {
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.stat-card strong {
-  font-size: 27px;
-  color: white;
-}
-
-.admin-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin: 20px 0;
-}
-
-.admin-tabs button {
-  padding: 10px 14px;
-  color: white;
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.admin-tabs button.active {
-  background: var(--red);
-}
-
-#adminContent {
-  background: var(--panel);
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  overflow-wrap: anywhere;
-}
-
-/* =====================================
-   SEARCH
-===================================== */
-
-.search-box {
-  display: flex;
-  gap: 8px;
-  margin: 20px 0;
-}
-
-.search-box input {
-  flex: 1;
-  min-width: 0;
-}
-
-.search-box button {
-  background: var(--red);
-  color: white;
-  border: 0;
-  padding: 0 17px;
-  border-radius: 9px;
-}
-
-/* =====================================
-   EMPTY STATES
-===================================== */
-
-.empty-state {
-  padding: 30px 15px;
-  text-align: center;
-  color: var(--muted);
-  background: var(--panel);
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-}
-
-/* =====================================
-   BOTTOM NAVIGATION
-===================================== */
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 200;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: #050e20;
-  border-top: 1px solid var(--border);
-  padding: 8px 3px calc(8px + env(safe-area-inset-bottom));
-}
-
-.bottom-nav button {
-  flex: 1;
-  min-width: 0;
-  color: var(--muted);
-  background: transparent;
-  border: 0;
-  font-size: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-
-.bottom-nav button span {
-  font-size: 20px;
-}
-
-.bottom-nav button:hover {
-  color: white;
-}
-
-/* =====================================
-   MOBILE RESPONSIVENESS
-===================================== */
-
-@media (max-width: 650px) {
-  .main-header {
-    padding: 10px 12px;
-  }
-
-  .brand {
-    font-size: 19px;
-  }
-
-  .main-nav {
-    padding: 9px 10px;
-  }
-
-  .nav-button {
-    padding: 9px 12px;
-    font-size: 12px;
-  }
-
-  .main-container {
-    padding: 17px 12px;
-  }
-
-  .video-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-
-  .video-card-body {
-    padding: 10px;
-  }
-
-  .video-card h3 {
-    font-size: 14px;
-  }
-
-  .video-actions {
-    gap: 5px;
-  }
-
-  .video-actions button {
-    padding: 7px;
-    font-size: 11px;
-  }
-
-  .admin-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .form-card {
-    padding: 15px;
-  }
-
-  .bottom-nav button {
-    font-size: 9px;
-  }
-}
-
-@media (min-width: 900px) {
-  .main-container {
-    padding-top: 30px;
-  }
-
-  .admin-stats {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-  </style>
-  <script>
-/* ==========================================
-   JIENXS — PART 3
-   SUPABASE, ACCOUNTS AND USER PROFILES
-========================================== */
-
+</nav>
+
+<!-- PART 2 CONTINUES INSIDE THIS SAME SCRIPT -->
+<script>
+      
+/* =========================================
+   JIENXS PART 2
+   SUPABASE CONNECTION AND ACCOUNT SYSTEM
+========================================= */
+
+// Create Supabase client FIRST.
+// All other application code must come after this.
 const SUPABASE_URL = "https://duwdfekgjcleihrimxrf.supabase.co";
 
-const SUPABASE_ANON_KEY = "sb_publishable_-iWmT491ZYoFQ7hJQZTwYQ_atpbcnhN";
+const SUPABASE_ANON_KEY =
+"sb_publishable_-iWmT491ZYoFQ7hJQZTwY_atpbcnhN";
+
+if (!window.supabase) {
+  document.body.innerHTML =
+    "<h2 style='color:white;padding:25px;background:#071329'>JIENXS could not load Supabase. Check your internet connection and refresh.</h2>";
+  throw new Error("Supabase library did not load.");
+}
 
 const supabaseClient = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
 );
+
+/* =========================================
+   GLOBAL APPLICATION STATE
+========================================= */
 
 let currentUser = null;
 let currentProfile = null;
+let allVideos = [];
+let activeVideoId = null;
+let activeCreatorId = null;
+let currentCategory = "All";
+let exploreCategory = "All";
 let isJienxsOwner = false;
+let notificationTimer = null;
 
-const JIENXS_OWNER_ID = "f317aa39-ac7d-4909-96cf-57fa58484fba";
-const JIENXS_OWNER_EMAIL = "macahnakeiy@gmail.com";
+const OWNER_USER_ID =
+"f317aa39-ac7d-4909-96cf-57fa58484fba";
 
+const OWNER_EMAIL = "macahnakeiy@gmail.com";
 
-/* ==========================================
-   HELPER FUNCTIONS
-========================================== */
+const $ = (id) => document.getElementById(id);
 
-function getElement(id) {
-    return document.getElementById(id);
+/* =========================================
+   SAFE DISPLAY HELPERS
+========================================= */
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
 }
 
-function showMessage(id, message, isError = false) {
-    const element = getElement(id);
+function showMessage(id, message, type = "error") {
+  const element = $(id);
+  if (!element) return;
 
-    if (!element) return;
-
-    element.textContent = message;
-    element.style.color = isError ? "#ff5964" : "#22c783";
+  element.textContent = message;
+  element.className = "form-message show " + type;
 }
 
-function safeText(value) {
-    return String(value ?? "").replace(/[&<>"']/g, character => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[character]);
+function clearMessage(id) {
+  const element = $(id);
+  if (!element) return;
+
+  element.textContent = "";
+  element.className = "form-message";
 }
 
+function requireLogin() {
+  if (currentUser) return true;
 
-/* ==========================================
+  alert("Please sign in to use this feature.");
+  showPage("authPage");
+  return false;
+}
+
+/* =========================================
    PAGE NAVIGATION
-========================================== */
+========================================= */
 
-function showPage(pageId, navButton = null) {
-    const requestedPage = getElement(pageId);
+function showPage(pageId, clickedButton = null) {
+  const protectedPages = [
+    "uploadPage",
+    "profilePage",
+    "notificationsPage"
+  ];
 
-    if (!requestedPage) return;
+  if (protectedPages.includes(pageId) && !currentUser) {
+    alert("Please sign in first.");
+    pageId = "authPage";
+  }
 
-    if (pageId === "adminPage" && !isJienxsOwner) {
-        alert("Owner access only.");
-        return;
+  if (pageId === "adminPage") {
+    if (!isJienxsOwner) {
+      alert("Owner access only.");
+      return;
     }
+  }
 
-    document.querySelectorAll(".page").forEach(page => {
-        page.classList.remove("active");
-    });
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
 
-    requestedPage.classList.add("active");
+  const page = $(pageId);
+  if (!page) return;
 
-    document.querySelectorAll(".nav-button").forEach(button => {
-        button.classList.remove("active");
-    });
+  page.classList.add("active");
 
-    if (navButton) {
-        navButton.classList.add("active");
-    }
+  document.querySelectorAll(
+    ".main-nav .nav-button, .bottom-nav button"
+  ).forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === pageId
+    );
+  });
 
-    window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-    });
-
-    if (pageId === "profilePage" && currentUser) {
-        loadProfile();
-    }
+  if (pageId === "homePage") loadVideos();
+  if (pageId === "profilePage") loadProfile();
+  if (pageId === "shortsPage") renderShorts();
+  if (pageId === "explorePage") renderExplore();
+  if (pageId === "notificationsPage") loadNotifications();
+  if (pageId === "adminPage") openAdminDashboard();
 }
 
+/* =========================================
+   AUTHENTICATION UI
+========================================= */
 
-/* ==========================================
-   OWNER ACCESS CHECK
-========================================== */
+function updateAuthUI() {
+  const authButton = $("authButton");
+  const signOutButton = $("signOutButton");
 
-async function refreshOwnerAccess() {
-    isJienxsOwner = false;
-
-    if (!currentUser) {
-        updateOwnerButtons();
-        return false;
+  if (currentUser) {
+    if (authButton) {
+      authButton.textContent = "My Profile";
+      authButton.onclick = () => showPage("profilePage");
     }
 
-    // Check the known owner account ID first.
-    if (currentUser.id === JIENXS_OWNER_ID) {
-        isJienxsOwner = true;
-    } else {
-        // Also verify the owner record through the database function.
-        const { data, error } = await supabaseClient.rpc(
-            "is_jienxs_admin"
-        );
-
-        if (!error && data === true) {
-            isJienxsOwner = true;
-        }
+    if (signOutButton) {
+      signOutButton.classList.remove("hidden");
+    }
+  } else {
+    if (authButton) {
+      authButton.textContent = "Sign In";
+      authButton.onclick = () => showPage("authPage");
     }
 
-    updateOwnerButtons();
-
-    return isJienxsOwner;
+    if (signOutButton) {
+      signOutButton.classList.add("hidden");
+    }
+  }
 }
 
-function updateOwnerButtons() {
-    const adminButton = getElement("adminNavButton");
-    const bottomOwnerButton = getElement("bottomOwnerButton");
-
-    if (adminButton) {
-        adminButton.style.display = isJienxsOwner ? "" : "none";
-    }
-
-    if (bottomOwnerButton) {
-        bottomOwnerButton.style.display = isJienxsOwner ? "" : "none";
-    }
-}
-
-
-/* ==========================================
-   PROFILE LOADING
-========================================== */
-
-async function loadProfile() {
-    if (!currentUser) return null;
-
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("id, username, nickname, created_at")
-        .eq("id", currentUser.id)
-        .maybeSingle();
-
-    if (error) {
-        console.error("Profile loading error:", error.message);
-        return null;
-    }
-
-    if (data) {
-        currentProfile = data;
-    } else {
-        const emailName = currentUser.email
-            ? currentUser.email.split("@")[0]
-            : "jienxs_user";
-
-        const newProfile = {
-            id: currentUser.id,
-            username: emailName.toLowerCase().replace(/[^a-z0-9_]/g, ""),
-            nickname: emailName
-        };
-
-        const { data: createdProfile, error: createError } =
-            await supabaseClient
-                .from("profiles")
-                .upsert(newProfile, { onConflict: "id" })
-                .select()
-                .single();
-
-        if (createError) {
-            console.error("Profile creation error:", createError.message);
-            return null;
-        }
-
-        currentProfile = createdProfile;
-    }
-
-    displayProfile();
-
-    return currentProfile;
-}
-
-
-/* ==========================================
-   DISPLAY PROFILE INFORMATION
-========================================== */
-
-function displayProfile() {
-    if (!currentUser) return;
-
-    const username = currentProfile?.username || "jienxs_user";
-    const nickname = currentProfile?.nickname || username;
-
-    if (getElement("profileAvatar")) {
-        getElement("profileAvatar").textContent =
-            nickname.charAt(0).toUpperCase();
-    }
-
-    if (getElement("profileNickname")) {
-        getElement("profileNickname").textContent = nickname;
-    }
-
-    if (getElement("profileUsername")) {
-        getElement("profileUsername").textContent = "@" + username;
-    }
-
-    if (getElement("profileEmail")) {
-        getElement("profileEmail").textContent = currentUser.email || "";
-    }
-
-    if (getElement("editUsername")) {
-        getElement("editUsername").value = username;
-    }
-
-    if (getElement("editNickname")) {
-        getElement("editNickname").value = nickname;
-    }
-}
-
-
-/* ==========================================
+/* =========================================
    CREATE ACCOUNT
-========================================== */
+========================================= */
 
 async function signUp() {
-    const username = getElement("authUsername")?.value.trim().toLowerCase();
-    const nickname = getElement("authNickname")?.value.trim();
-    const email = getElement("authEmail")?.value.trim();
-    const password = getElement("authPassword")?.value;
+  const username = $("authUsername").value.trim()
+    .replace(/^@/, "").toLowerCase();
 
-    if (!username || !nickname || !email || !password) {
-        showMessage("authMessage", "Please complete all fields.", true);
-        return;
-    }
+  const nickname = $("authNickname").value.trim();
+  const email = $("authEmail").value.trim().toLowerCase();
+  const password = $("authPassword").value;
 
-    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-        showMessage(
-            "authMessage",
-            "Username must be 3–20 characters using letters, numbers or underscores.",
-            true
-        );
-        return;
-    }
+  clearMessage("authMessage");
 
-    if (password.length < 6) {
-        showMessage(
-            "authMessage",
-            "Your password must contain at least 6 characters.",
-            true
-        );
-        return;
-    }
+  if (!username || !nickname || !email || !password) {
+    showMessage("authMessage", "Please complete every field.");
+    return;
+  }
 
-    const button = getElement("signUpButton");
+  if (!/^[a-z0-9_]{3,25}$/.test(username)) {
+    showMessage(
+      "authMessage",
+      "Username must be 3–25 characters using letters, numbers or underscores."
+    );
+    return;
+  }
 
-    if (button) button.disabled = true;
+  if (password.length < 6) {
+    showMessage(
+      "authMessage",
+      "Your password must contain at least 6 characters."
+    );
+    return;
+  }
 
-    showMessage("authMessage", "Creating your JIENXS account...");
+  const button = $("signUpButton");
+  button.disabled = true;
+  button.textContent = "Creating account...";
 
-    try {
-        const { data, error } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    username,
-                    nickname
-                }
-            }
-        });
-
-        if (error) throw error;
-
-        if (data.user) {
-            const { error: profileError } = await supabaseClient
-                .from("profiles")
-                .upsert({
-                    id: data.user.id,
-                    username,
-                    nickname
-                }, {
-                    onConflict: "id"
-                });
-
-            if (profileError) {
-                console.error("Profile save error:", profileError.message);
-                showMessage(
-                    "authMessage",
-                    "Your account was created, but your profile could not be saved. Please sign in and try again.",
-                    true
-                );
-                return;
-            }
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+          nickname
         }
+      }
+    });
 
-        if (data.session) {
-            showMessage("authMessage", "Account created successfully!");
-        } else {
-            showMessage(
-                "authMessage",
-                "Account created. Check your email if confirmation is required, then sign in."
-            );
-        }
+    if (error) throw error;
 
-    } catch (error) {
-        showMessage("authMessage", error.message, true);
-    } finally {
-        if (button) button.disabled = false;
+    if (data.user && data.session) {
+      currentUser = data.user;
+
+      const { error: profileError } = await supabaseClient
+        .from("profiles")
+        .upsert({
+          id: data.user.id,
+          username,
+          nickname
+        }, { onConflict: "id" });
+
+      if (profileError) {
+        console.error("Profile creation:", profileError);
+      }
+
+      await handleAuthState(data.session);
+
+      showMessage(
+        "authMessage",
+        "Your JIENXS account has been created!",
+        "success"
+      );
+
+      showPage("profilePage");
+    } else {
+      showMessage(
+        "authMessage",
+        "Account created. Please check your email to confirm your account, then sign in.",
+        "success"
+      );
     }
+
+  } catch (error) {
+    console.error("Sign up error:", error);
+    showMessage("authMessage", error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Create Account";
+  }
 }
 
-
-/* ==========================================
+/* =========================================
    SIGN IN
-========================================== */
+========================================= */
 
 async function signIn() {
-    const email = getElement("loginEmail")?.value.trim();
-    const password = getElement("loginPassword")?.value;
+  const email = $("loginEmail").value.trim().toLowerCase();
+  const password = $("loginPassword").value;
 
-    if (!email || !password) {
-        showMessage("loginMessage", "Enter your email and password.", true);
-        return;
-    }
+  clearMessage("loginMessage");
 
-    const button = getElement("signInButton");
+  if (!email || !password) {
+    showMessage("loginMessage", "Enter your email and password.");
+    return;
+  }
 
-    if (button) button.disabled = true;
+  const button = $("signInButton");
+  button.disabled = true;
+  button.textContent = "Signing in...";
 
-    showMessage("loginMessage", "Signing in...");
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
 
-    try {
-        const { error } = await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-        });
+    if (error) throw error;
 
-        if (error) throw error;
+    await handleAuthState(data.session);
 
-        showMessage("loginMessage", "Signed in successfully!");
-
-    } catch (error) {
-        showMessage("loginMessage", error.message, true);
-    } finally {
-        if (button) button.disabled = false;
-    }
-}
-
-
-/* ==========================================
-   SIGN OUT
-========================================== */
-
-async function signOut() {
-    const { error } = await supabaseClient.auth.signOut();
-
-    if (error) {
-        alert("Sign out failed: " + error.message);
-        return;
-    }
-
-    currentUser = null;
-    currentProfile = null;
-    isJienxsOwner = false;
-
-    updateAuthUI();
-    updateOwnerButtons();
+    showMessage(
+      "loginMessage",
+      "You have successfully signed in!",
+      "success"
+    );
 
     showPage("homePage");
 
-    alert("You have signed out of JIENXS.");
+  } catch (error) {
+    console.error("Sign in error:", error);
+    showMessage("loginMessage", error.message);
+  } finally {
+    button.disabled = false;
+    button.textContent = "Sign In";
+  }
 }
 
+/* =========================================
+   SIGN OUT
+========================================= */
 
-/* ==========================================
+async function signOut() {
+  if (!confirm("Are you sure you want to sign out?")) return;
+
+  const { error } = await supabaseClient.auth.signOut();
+
+  if (error) {
+    alert("Sign out failed: " + error.message);
+    return;
+  }
+
+  currentUser = null;
+  currentProfile = null;
+  isJienxsOwner = false;
+
+  updateAuthUI();
+  updateOwnerButton();
+
+  alert("You have signed out.");
+  showPage("homePage");
+}
+
+/* =========================================
+   LOAD USER PROFILE
+========================================= */
+
+async function loadProfile() {
+  if (!currentUser) return;
+
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Profile loading:", error);
+    return;
+  }
+
+  if (!data) {
+    const metadata = currentUser.user_metadata || {};
+
+    const newProfile = {
+      id: currentUser.id,
+      username: metadata.username ||
+        currentUser.email.split("@")[0],
+      nickname: metadata.nickname || "JIENXS User"
+    };
+
+    const { data: created, error: createError } =
+      await supabaseClient
+        .from("profiles")
+        .upsert(newProfile, { onConflict: "id" })
+        .select()
+        .single();
+
+    if (createError) {
+      console.error("Profile creation:", createError);
+      return;
+    }
+
+    currentProfile = created;
+  } else {
+    currentProfile = data;
+  }
+
+  $("profileNickname").textContent =
+    currentProfile.nickname || "JIENXS User";
+
+  $("profileUsername").textContent =
+    "@" + (currentProfile.username || "user");
+
+  $("profileEmail").textContent = currentUser.email || "";
+
+  $("profileAvatar").textContent =
+    (currentProfile.nickname || "J").charAt(0).toUpperCase();
+
+  $("editUsername").value = currentProfile.username || "";
+  $("editNickname").value = currentProfile.nickname || "";
+
+  await loadMyVideos();
+}
+
+/* =========================================
    SAVE USERNAME AND NICKNAME
-========================================== */
+========================================= */
 
 async function saveProfile() {
-    if (!currentUser) {
-        showMessage("profileMessage", "Please sign in first.", true);
-        return;
-    }
+  if (!requireLogin()) return;
 
-    const username = getElement("editUsername")?.value.trim().toLowerCase();
-    const nickname = getElement("editNickname")?.value.trim();
+  const username = $("editUsername").value.trim()
+    .replace(/^@/, "").toLowerCase();
 
-    if (!username || !nickname) {
-        showMessage("profileMessage", "Enter a username and nickname.", true);
-        return;
-    }
+  const nickname = $("editNickname").value.trim();
 
-    if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-        showMessage(
-            "profileMessage",
-            "Username must be 3–20 characters using letters, numbers or underscores.",
-            true
-        );
-        return;
-    }
+  clearMessage("profileMessage");
 
-    showMessage("profileMessage", "Saving profile...");
+  if (!/^[a-z0-9_]{3,25}$/.test(username)) {
+    showMessage(
+      "profileMessage",
+      "Username must be 3–25 characters using letters, numbers or underscores."
+    );
+    return;
+  }
 
-    const button = getElement("saveProfileButton");
+  if (!nickname) {
+    showMessage("profileMessage", "Please enter a nickname.");
+    return;
+  }
 
-    if (button) button.disabled = true;
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .upsert({
+      id: currentUser.id,
+      username,
+      nickname
+    }, { onConflict: "id" })
+    .select()
+    .single();
 
-    try {
-        const { data, error } = await supabaseClient
-            .from("profiles")
-            .upsert({
-                id: currentUser.id,
-                username,
-                nickname
-            }, {
-                onConflict: "id"
-            })
-            .select()
-            .single();
+  if (error) {
+    showMessage("profileMessage", error.message);
+    return;
+  }
 
-        if (error) throw error;
+  currentProfile = data;
 
-        currentProfile = data;
+  $("profileNickname").textContent = nickname;
+  $("profileUsername").textContent = "@" + username;
+  $("profileAvatar").textContent = nickname.charAt(0).toUpperCase();
 
-        displayProfile();
-
-        showMessage("profileMessage", "Your profile has been updated.");
-
-    } catch (error) {
-        showMessage("profileMessage", error.message, true);
-    } finally {
-        if (button) button.disabled = false;
-    }
+  showMessage(
+    "profileMessage",
+    "Your profile has been updated!",
+    "success"
+  );
 }
 
-
-/* ==========================================
-   UPDATE SIGN-IN BUTTON AND PROFILE VIEW
-========================================== */
-
-function updateAuthUI() {
-    const authButton = getElement("authButton");
-    const signOutButton = getElement("signOutButton");
-
-    if (currentUser) {
-        if (authButton) {
-            authButton.textContent =
-                currentProfile?.nickname || "My Account";
-
-            authButton.onclick = () => showPage("profilePage");
-        }
-
-        if (signOutButton) {
-            signOutButton.style.display = "";
-        }
-
-    } else {
-        if (authButton) {
-            authButton.textContent = "Sign In";
-
-            authButton.onclick = () => showPage("authPage");
-        }
-
-        if (signOutButton) {
-            signOutButton.style.display = "none";
-        }
-    }
-}
-
-
-/* ==========================================
-   AUTHENTICATION STATE
-========================================== */
+/* =========================================
+   AUTH STATE HANDLER
+========================================= */
 
 async function handleAuthState(session) {
-    currentUser = session?.user || null;
+  currentUser = session?.user || null;
+  currentProfile = null;
+  isJienxsOwner = false;
 
-    if (currentUser) {
-        await loadProfile();
-        await refreshOwnerAccess();
+  updateAuthUI();
 
-        updateAuthUI();
+  if (!currentUser) {
+    updateOwnerButton();
+    return;
+  }
 
-        // Continue to the homepage after a successful sign-in.
-        if (getElement("authPage")?.classList.contains("active")) {
-            showPage("homePage");
-        }
-
-    } else {
-        currentProfile = null;
-        isJienxsOwner = false;
-
-        updateAuthUI();
-        updateOwnerButtons();
-    }
+  await loadProfile();
+  await checkOwnerAccess();
+  updateOwnerButton();
 }
 
+/* =========================================
+   OWNER BUTTON VISIBILITY
+========================================= */
 
-/* ==========================================
-   START AUTHENTICATION LISTENER
-========================================== */
+function updateOwnerButton() {
+  const topButton = $("adminNavButton");
+
+  if (topButton) {
+    topButton.classList.toggle("hidden", !isJienxsOwner);
+  }
+}
+
+/* =========================================
+   SUPABASE AUTH LISTENER
+========================================= */
 
 supabaseClient.auth.onAuthStateChange((event, session) => {
-    // Defer database requests until after the auth event callback.
-    setTimeout(() => {
-        handleAuthState(session);
-    }, 0);
+  // Run outside the auth callback to avoid nested auth operations.
+  setTimeout(() => {
+    handleAuthState(session);
+  }, 0);
 });
 
+/* =========================================
+   INITIAL SESSION
+========================================= */
 
-/* ==========================================
-   BUTTON CONNECTIONS
-========================================== */
+async function initializeJienxs() {
+  try {
+    const { data, error } =
+      await supabaseClient.auth.getSession();
 
-getElement("signUpButton")?.addEventListener("click", signUp);
-
-getElement("signInButton")?.addEventListener("click", signIn);
-
-getElement("signOutButton")?.addEventListener("click", signOut);
-
-getElement("saveProfileButton")?.addEventListener("click", saveProfile);
-
-
-/* ==========================================
-   CHECK EXISTING LOGIN SESSION
-========================================== */
-
-(async function initializeJienxsAccounts() {
-    const { data, error } = await supabaseClient.auth.getSession();
-
-    if (error) {
-        console.error("Session error:", error.message);
-        return;
-    }
+    if (error) throw error;
 
     await handleAuthState(data.session);
-})();
 
-/* DO NOT CLOSE THIS SCRIPT YET.
-   PARTS 4–8 WILL CONTINUE INSIDE IT. */
-    /* ==========================================
-   JIENXS — PART 4
-   VIDEO UPLOADS, PLAYBACK AND DELETION
-========================================== */
+    console.log("JIENXS initialized successfully.");
 
-let allVideos = [];
-let activeCategory = "All";
-let exploreCategory = "All";
+  } catch (error) {
+    console.error("JIENXS initialization error:", error);
+  }
 
-
-/* ==========================================
-   VIDEO FILE NAME
-========================================== */
-
-function cleanFileName(fileName) {
-    return fileName
-        .replace(/[^a-zA-Z0-9._-]/g, "_")
-        .slice(-100);
+  await loadVideos();
 }
 
+initializeJienxs();
+  
+/* =========================================
+   JIENXS PART 3
+   VIDEO FEED AND PLAYBACK SYSTEM
+========================================= */
 
-/* ==========================================
+/* =========================================
    LOAD PUBLISHED VIDEOS
-========================================== */
+========================================= */
 
 async function loadVideos() {
-    const videoGrid = getElement("videoGrid");
-    const shortsFeed = getElement("shortsFeed");
-    const exploreGrid = getElement("exploreGrid");
+  const videoGrid = $("videoGrid");
 
-    if (videoGrid) {
-        videoGrid.innerHTML = '<div class="empty-state">Loading videos...</div>';
-    }
+  if (videoGrid) {
+    videoGrid.innerHTML =
+      '<p class="empty-state">Loading videos...</p>';
+  }
 
+  try {
     const { data, error } = await supabaseClient
-        .from("videos")
-        .select("*")
-        .eq("status", "published")
-        .order("created_at", { ascending: false });
+      .from("videos")
+      .select("*")
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
 
-    if (error) {
-        console.error("Video loading error:", error.message);
-
-        if (videoGrid) {
-            videoGrid.innerHTML =
-                '<div class="empty-state">Unable to load videos. Please refresh and try again.</div>';
-        }
-
-        return;
-    }
+    if (error) throw error;
 
     allVideos = data || [];
 
-    renderHomeVideos();
-    renderExploreVideos();
+    renderVideos();
     renderShorts();
+    renderExplore();
 
-    return allVideos;
+  } catch (error) {
+    console.error("Video loading error:", error);
+
+    if (videoGrid) {
+      videoGrid.innerHTML =
+        '<p class="empty-state">Could not load videos: ' +
+        escapeHTML(error.message) + '</p>';
+    }
+  }
 }
 
+/* =========================================
+   VIDEO URL VALIDATION
+========================================= */
 
-/* ==========================================
-   VIDEO CARD DISPLAY
-========================================== */
+function safeVideoURL(value) {
+  try {
+    const url = new URL(value);
 
-function renderVideoCard(video) {
-    const videoId = safeText(video.id);
-    const title = safeText(video.title);
-    const description = safeText(video.description || "");
-    const creatorName = safeText(video.creator_name || "JIENXS Creator");
-    const videoUrl = safeText(video.video_url);
+    if (url.protocol !== "https:" && url.protocol !== "http:") {
+      return "";
+    }
 
-    const isOwnerOfVideo =
-        currentUser && video.creator_id === currentUser.id;
+    return url.href;
+  } catch {
+    return "";
+  }
+}
 
-    const canDelete = isOwnerOfVideo || isJienxsOwner;
+/* =========================================
+   FORMAT VIDEO DATE
+========================================= */
 
+function formatVideoDate(dateValue) {
+  if (!dateValue) return "";
+
+  const date = new Date(dateValue);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return date.toLocaleDateString();
+}
+
+/* =========================================
+   RENDER VIDEO CARD
+========================================= */
+
+function renderVideoCard(video, options = {}) {
+  const videoURL = safeVideoURL(video.video_url);
+
+  if (!videoURL) {
     return `
-        <article class="video-card" data-video-id="${videoId}">
-
-            <video
-                class="video-player"
-                src="${videoUrl}"
-                controls
-                playsinline
-                preload="metadata"
-            ></video>
-
-            <div class="video-card-body">
-
-                <h3>${title}</h3>
-
-                <p class="video-description">
-                    ${description}
-                </p>
-
-                <div class="video-meta">
-                    <button
-                        class="secondary-button"
-                        onclick="openCreator('${safeText(video.creator_id)}')"
-                    >
-                        ${creatorName}
-                    </button>
-
-                    <span>${safeText(video.category || "Other")}</span>
-                </div>
-
-                <div class="video-actions">
-
-                    <button
-                        class="secondary-button"
-                        onclick="toggleLike('${videoId}')"
-                    >
-                        <span class="like-label">Like</span>
-                        <span class="like-count">0</span>
-                    </button>
-
-                    <button
-                        class="secondary-button"
-                        onclick="openComments('${videoId}')"
-                    >
-                        Comments
-                    </button>
-
-                    ${
-                        canDelete
-                        ? `
-                            <button
-                                class="delete-button"
-                                onclick="deleteVideo('${videoId}')"
-                            >
-                                Delete
-                            </button>
-                        `
-                        : ""
-                    }
-
-                </div>
-
-            </div>
-        </article>
+      <article class="video-card">
+        <div class="empty-state">Video URL is unavailable.</div>
+      </article>
     `;
+  }
+
+  const title = escapeHTML(video.title || "Untitled video");
+  const description = escapeHTML(video.description || "");
+  const creatorName = escapeHTML(video.creator_name || "JIENXS Creator");
+  const category = escapeHTML(video.category || "Other");
+  const date = escapeHTML(formatVideoDate(video.created_at));
+  const videoId = escapeHTML(video.id || "");
+  const creatorId = escapeHTML(video.creator_id || "");
+
+  const showDelete = options.allowDelete &&
+    currentUser &&
+    video.creator_id === currentUser.id;
+
+  return `
+    <article class="video-card" data-video-id="${videoId}">
+      <video
+        class="video-player"
+        src="${escapeHTML(videoURL)}"
+        controls
+        playsinline
+        preload="metadata">
+        Your browser does not support video playback.
+      </video>
+
+      <div class="video-card-body">
+        <div class="video-title">${title}</div>
+
+        <p class="video-description">${description}</p>
+
+        <div class="video-meta">
+          <span>${creatorName}</span>
+          · ${category}
+          · ${date}
+        </div>
+
+        ${
+          creatorId
+          ? `<button class="secondary-button creator-link"
+              data-creator-id="${creatorId}">
+              View Creator
+            </button>`
+          : ""
+        }
+      </div>
+
+      <div class="video-actions">
+        <button class="like-button" data-video-id="${videoId}">
+          ❤️ <span class="like-count">0</span>
+        </button>
+
+        <button class="comment-button" data-video-id="${videoId}">
+          💬 Comments
+        </button>
+
+        ${
+          showDelete
+          ? `<button class="danger-button delete-video-button"
+              data-video-id="${videoId}">
+              Delete Video
+            </button>`
+          : ""
+        }
+      </div>
+    </article>
+  `;
 }
 
+/* =========================================
+   RENDER HOME FEED
+========================================= */
 
-/* ==========================================
-   HOMEPAGE VIDEO DISPLAY
-========================================== */
+function renderVideos() {
+  const container = $("videoGrid");
 
-function renderHomeVideos() {
-    const container = getElement("videoGrid");
+  if (!container) return;
 
-    if (!container) return;
+  const search = ($("searchInput")?.value || "")
+    .trim().toLowerCase();
 
-    const filteredVideos = activeCategory === "All"
-        ? allVideos
-        : allVideos.filter(video =>
-            video.category === activeCategory
-        );
+  const filtered = allVideos.filter(video => {
+    const categoryMatches =
+      currentCategory === "All" ||
+      video.category === currentCategory;
 
-    if (filteredVideos.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                No videos found in this category yet.
-            </div>
-        `;
-        return;
-    }
+    const searchMatches =
+      !search ||
+      (video.title || "").toLowerCase().includes(search) ||
+      (video.description || "").toLowerCase().includes(search) ||
+      (video.creator_name || "").toLowerCase().includes(search);
 
-    container.innerHTML = filteredVideos
-        .map(video => renderVideoCard(video))
-        .join("");
+    return categoryMatches && searchMatches;
+  });
 
-    if (typeof loadLikesForVideos === "function") {
-        loadLikesForVideos(filteredVideos);
-    }
+  if (!filtered.length) {
+    container.innerHTML =
+      '<p class="empty-state">No videos found. Be the first to upload!</p>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(video =>
+    renderVideoCard(video, { allowDelete: true })
+  ).join("");
+
+  attachVideoCardEvents(container);
 }
 
+/* =========================================
+   VIDEO CARD BUTTON EVENTS
+========================================= */
 
-/* ==========================================
-   CATEGORY FILTER
-========================================== */
-
-function setCategory(category) {
-    activeCategory = category;
-
-    document.querySelectorAll(".category-button").forEach(button => {
-        button.classList.toggle(
-            "active",
-            button.textContent.trim().toLowerCase() ===
-            category.toLowerCase()
-        );
+function attachVideoCardEvents(container) {
+  container.querySelectorAll(".like-button").forEach(button => {
+    button.addEventListener("click", () => {
+      if (typeof toggleLike === "function") {
+        toggleLike(button.dataset.videoId);
+      }
     });
+  });
 
-    renderHomeVideos();
+  container.querySelectorAll(".comment-button").forEach(button => {
+    button.addEventListener("click", () => {
+      if (typeof openComments === "function") {
+        openComments(button.dataset.videoId);
+      }
+    });
+  });
+
+  container.querySelectorAll(".delete-video-button").forEach(button => {
+    button.addEventListener("click", () => {
+      if (typeof deleteVideo === "function") {
+        deleteVideo(button.dataset.videoId);
+      }
+    });
+  });
+
+  container.querySelectorAll(".creator-link").forEach(button => {
+    button.addEventListener("click", () => {
+      if (typeof openCreator === "function") {
+        openCreator(button.dataset.creatorId);
+      }
+    });
+  });
+
+  // Load like counts and the signed-in user's like state.
+  if (typeof loadLikesForVideos === "function") {
+    loadLikesForVideos();
+  }
 }
 
+/* =========================================
+   CATEGORY FILTER
+========================================= */
 
-/* ==========================================
-   EXPLORE VIDEO DISPLAY
-========================================== */
+function setCategory(category, button = null) {
+  currentCategory = category;
 
-function renderExploreVideos() {
-    const container = getElement("exploreGrid");
+  document.querySelectorAll("#homeCategories .category-button")
+    .forEach(item => item.classList.remove("active"));
 
-    if (!container) return;
+  if (button) {
+    button.classList.add("active");
+  } else {
+    document.querySelectorAll("#homeCategories .category-button")
+      .forEach(item => {
+        if (item.textContent.trim() === category) {
+          item.classList.add("active");
+        }
+      });
+  }
 
-    const searchTerm =
-        getElement("searchInput")?.value.trim().toLowerCase() || "";
-
-    let results = [...allVideos];
-
-    if (exploreCategory !== "All") {
-        results = results.filter(video =>
-            video.category === exploreCategory
-        );
-    }
-
-    if (searchTerm) {
-        results = results.filter(video => {
-            const title = (video.title || "").toLowerCase();
-            const description = (video.description || "").toLowerCase();
-            const creator = (video.creator_name || "").toLowerCase();
-
-            return (
-                title.includes(searchTerm) ||
-                description.includes(searchTerm) ||
-                creator.includes(searchTerm)
-            );
-        });
-    }
-
-    if (results.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                No matching videos found.
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = results
-        .map(video => renderVideoCard(video))
-        .join("");
-
-    if (typeof loadLikesForVideos === "function") {
-        loadLikesForVideos(results);
-    }
+  renderVideos();
 }
 
+/* =========================================
+   SEARCH VIDEOS
+========================================= */
 
 function searchVideos() {
-    renderExploreVideos();
+  renderVideos();
 }
 
+$("searchInput")?.addEventListener("input", searchVideos);
 
-function setExploreCategory(category) {
-    exploreCategory = category;
-    renderExploreVideos();
-}
-
-
-/* ==========================================
-   SHORTS DISPLAY
-========================================== */
+/* =========================================
+   SHORTS FEED
+========================================= */
 
 function renderShorts() {
-    const container = getElement("shortsFeed");
+  const container = $("shortsFeed");
 
-    if (!container) return;
+  if (!container) return;
 
-    if (allVideos.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                No Shorts available yet. Upload a video to get started.
-            </div>
-        `;
-        return;
-    }
+  if (!allVideos.length) {
+    container.innerHTML =
+      '<p class="empty-state">No Shorts available yet.</p>';
+    return;
+  }
 
-    container.innerHTML = allVideos.map(video => `
-        <article class="short-card">
+  container.innerHTML = allVideos.map(video =>
+    renderVideoCard(video)
+  ).join("");
 
-            <video
-                src="${safeText(video.video_url)}"
-                controls
-                playsinline
-                preload="metadata"
-            ></video>
-
-            <div class="short-card-info">
-
-                <h3>${safeText(video.title)}</h3>
-
-                <p>${safeText(video.creator_name || "JIENXS Creator")}</p>
-
-                <button
-                    class="secondary-button"
-                    onclick="openComments('${safeText(video.id)}')"
-                >
-                    Comments
-                </button>
-
-            </div>
-
-        </article>
-    `).join("");
+  attachVideoCardEvents(container);
 }
 
+/* =========================================
+   EXPLORE FEED
+========================================= */
 
-/* ==========================================
-   UPLOAD A VIDEO
-========================================== */
+function renderExplore() {
+  const container = $("exploreGrid");
+
+  if (!container) return;
+
+  const filtered = allVideos.filter(video =>
+    exploreCategory === "All" ||
+    video.category === exploreCategory
+  );
+
+  if (!filtered.length) {
+    container.innerHTML =
+      '<p class="empty-state">No videos in this category yet.</p>';
+    return;
+  }
+
+  container.innerHTML = filtered.map(video =>
+    renderVideoCard(video)
+  ).join("");
+
+  attachVideoCardEvents(container);
+}
+
+/* =========================================
+   EXPLORE CATEGORY FILTER
+========================================= */
+
+function setExploreCategory(category, button = null) {
+  exploreCategory = category;
+
+  document.querySelectorAll("#exploreCategories .category-button")
+    .forEach(item => item.classList.remove("active"));
+
+  if (button) {
+    button.classList.add("active");
+  }
+
+  renderExplore();
+}
+
+/* =========================================
+   REFRESH FEED
+========================================= */
+
+async function refreshVideoFeed() {
+  await loadVideos();
+}
+
+console.log("JIENXS Part 3 loaded.");
+  
+/* =========================================
+   JIENXS PART 4
+   VIDEO UPLOAD AND DELETE SYSTEM
+========================================= */
+
+const JIENXS_STORAGE_BUCKET = "jienxs";
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024;
+
+/* =========================================
+   UPLOAD MESSAGE
+========================================= */
+
+function uploadStatus(message, type = "success") {
+  showMessage("uploadMessage", message, type);
+}
+
+/* =========================================
+   UPLOAD VIDEO
+========================================= */
 
 async function uploadVideo() {
-    if (!currentUser) {
-        showMessage(
-            "uploadMessage",
-            "Please sign in before uploading videos.",
-            true
-        );
-
-        showPage("authPage");
-        return;
-    }
-
-    const title = getElement("videoTitle")?.value.trim();
-    const description =
-        getElement("videoDescription")?.value.trim() || "";
-
-    const category = getElement("videoCategory")?.value;
-    const file = getElement("videoFile")?.files?.[0];
-
-    if (!title || !file || !category) {
-        showMessage(
-            "uploadMessage",
-            "Enter a title, select a category and choose a video file.",
-            true
-        );
-        return;
-    }
-
-    const allowedCategories = [
-        "Football",
-        "Gaming",
-        "Skills",
-        "Other"
-    ];
-
-    if (!allowedCategories.includes(category)) {
-        showMessage(
-            "uploadMessage",
-            "Please select a valid video category.",
-            true
-        );
-        return;
-    }
-
-    if (!file.type.startsWith("video/")) {
-        showMessage(
-            "uploadMessage",
-            "Please select a valid video file.",
-            true
-        );
-        return;
-    }
-
-    const uploadButton = getElement("uploadButton");
-
-    if (uploadButton) uploadButton.disabled = true;
-
-    showMessage("uploadMessage", "Uploading your video. Please wait...");
-
-    const progress = getElement("uploadProgress");
-
-    if (progress) {
-        progress.style.display = "block";
-        progress.value = 0;
-    }
-
-    try {
-        const creatorName =
-            currentProfile?.nickname ||
-            currentProfile?.username ||
-            currentUser.email?.split("@")[0] ||
-            "JIENXS Creator";
-
-        const filePath =
-            currentUser.id +
-            "/" +
-            Date.now() +
-            "_" +
-            cleanFileName(file.name);
-
-        // Upload video to the JIENXS storage bucket.
-        const { error: storageError } = await supabaseClient
-            .storage
-            .from("jienxs")
-            .upload(filePath, file, {
-                cacheControl: "3600",
-                upsert: false,
-                contentType: file.type
-            });
-
-        if (storageError) throw storageError;
-
-        const { data: publicUrlData } = supabaseClient
-            .storage
-            .from("jienxs")
-            .getPublicUrl(filePath);
-
-        const publicUrl = publicUrlData.publicUrl;
-
-        // Save video details in the videos table.
-        const { error: insertError } = await supabaseClient
-            .from("videos")
-            .insert({
-                title: title,
-                description: description,
-                category: category,
-                video_url: publicUrl,
-                storage_path: filePath,
-                creator_id: currentUser.id,
-                creator_name: creatorName,
-                status: "published"
-            });
-
-        if (insertError) {
-            // Remove uploaded file if database insertion fails.
-            await supabaseClient
-                .storage
-                .from("jienxs")
-                .remove([filePath]);
-
-            throw insertError;
-        }
-
-        if (progress) {
-            progress.value = 100;
-        }
-
-        showMessage(
-            "uploadMessage",
-            "Your video has been uploaded successfully!"
-        );
-
-        getElement("videoTitle").value = "";
-        getElement("videoDescription").value = "";
-        getElement("videoFile").value = "";
-
-        await loadVideos();
-        await loadMyVideos();
-
-    } catch (error) {
-        console.error("Video upload error:", error);
-
-        showMessage(
-            "uploadMessage",
-            "Upload failed: " + error.message,
-            true
-        );
-
-    } finally {
-        if (uploadButton) uploadButton.disabled = false;
-    }
-}
-
-
-/* ==========================================
-   LOAD MY UPLOADED VIDEOS
-========================================== */
-
-async function loadMyVideos() {
-    const container = getElement("myVideos");
-
-    if (!container || !currentUser) return;
-
-    container.innerHTML = `
-        <div class="empty-state">Loading your videos...</div>
-    `;
-
-    const { data, error } = await supabaseClient
-        .from("videos")
-        .select("*")
-        .eq("creator_id", currentUser.id)
-        .neq("status", "removed")
-        .order("created_at", { ascending: false });
-
-    if (error) {
-        console.error("My videos error:", error.message);
-
-        container.innerHTML = `
-            <div class="empty-state">
-                Unable to load your videos.
-            </div>
-        `;
-
-        return;
-    }
-
-    if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                You have not uploaded any videos yet.
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML = data
-        .map(video => renderVideoCard(video))
-        .join("");
-
-    if (typeof loadLikesForVideos === "function") {
-        loadLikesForVideos(data);
-    }
-
-    if (getElement("profileVideoCount")) {
-        getElement("profileVideoCount").textContent = data.length;
-    }
-}
-
-
-/* ==========================================
-   DELETE A VIDEO
-========================================== */
-
-async function deleteVideo(videoId) {
-    if (!currentUser) {
-        alert("Please sign in first.");
-        return;
-    }
-
-    const video = allVideos.find(item => item.id === videoId);
-
-    // If the video is not in the public feed, retrieve it directly.
-    let videoToDelete = video;
-
-    if (!videoToDelete) {
-        const { data, error } = await supabaseClient
-            .from("videos")
-            .select("*")
-            .eq("id", videoId)
-            .maybeSingle();
-
-        if (error || !data) {
-            alert("Video could not be found.");
-            return;
-        }
-
-        videoToDelete = data;
-    }
-
-    const isCreator =
-        videoToDelete.creator_id === currentUser.id;
-
-    if (!isCreator && !isJienxsOwner) {
-        alert("You are not allowed to delete this video.");
-        return;
-    }
-
-    const confirmed = confirm(
-        "Are you sure you want to delete this video? This cannot be undone."
-    );
-
-    if (!confirmed) return;
-
-    try {
-        // Delete the database record first.
-        const { error: deleteError } = await supabaseClient
-            .from("videos")
-            .delete()
-            .eq("id", videoId);
-
-        if (deleteError) throw deleteError;
-
-        // Remove the stored video file if a storage path exists.
-        if (videoToDelete.storage_path) {
-            const { error: storageError } = await supabaseClient
-                .storage
-                .from("jienxs")
-                .remove([videoToDelete.storage_path]);
-
-            if (storageError) {
-                console.warn(
-                    "Video record deleted, but storage cleanup failed:",
-                    storageError.message
-                );
-            }
-        }
-
-        alert("Video deleted successfully.");
-
-        await loadVideos();
-        await loadMyVideos();
-
-    } catch (error) {
-        console.error("Video deletion error:", error);
-        alert("Could not delete video: " + error.message);
-    }
-}
-
-
-/* ==========================================
-   CONNECT VIDEO PAGE BUTTONS
-========================================== */
-
-getElement("uploadButton")?.addEventListener(
-    "click",
-    uploadVideo
-);
-
-getElement("searchInput")?.addEventListener(
-    "input",
-    searchVideos
-);
-
-
-/* ==========================================
-   LOAD VIDEOS WHEN PART 4 IS READY
-========================================== */
-
-loadVideos();
-    /* ==========================================
-   JIENXS — PART 5
-   LIKES, UNLIKE, COMMENTS AND DELETION
-========================================== */
-
-let currentCommentVideoId = null;
-
-
-/* ==========================================
-   LOAD LIKES FOR DISPLAYED VIDEOS
-========================================== */
-
-async function loadLikesForVideos(videos) {
-    if (!videos || videos.length === 0) return;
-
-    const videoIds = [...new Set(videos.map(video => video.id))];
-
-    const { data: likes, error } = await supabaseClient
-        .from("likes")
-        .select("video_id, user_id")
-        .in("video_id", videoIds);
-
-    if (error) {
-        console.error("Likes loading error:", error.message);
-        return;
-    }
-
-    const likeCounts = {};
-    const userLiked = new Set();
-
-    (likes || []).forEach(like => {
-        likeCounts[like.video_id] =
-            (likeCounts[like.video_id] || 0) + 1;
-
-        if (currentUser && like.user_id === currentUser.id) {
-            userLiked.add(like.video_id);
-        }
-    });
-
-    document.querySelectorAll(".video-card").forEach(card => {
-        const videoId = card.dataset.videoId;
-
-        if (!videoId || !videoIds.includes(videoId)) return;
-
-        const countElement = card.querySelector(".like-count");
-        const button = card.querySelector(
-            '.video-actions button[onclick*="toggleLike"]'
-        );
-
-        if (countElement) {
-            countElement.textContent = likeCounts[videoId] || 0;
-        }
-
-        if (button) {
-            const liked = userLiked.has(videoId);
-
-            button.classList.toggle("liked", liked);
-
-            const label = button.querySelector(".like-label");
-
-            if (label) {
-                label.textContent = liked ? "Unlike" : "Like";
-            }
-        }
-    });
-}
-
-
-/* ==========================================
-   LIKE OR UNLIKE A VIDEO
-========================================== */
-
-async function toggleLike(videoId) {
-    if (!currentUser) {
-        alert("Please sign in to like videos.");
-        showPage("authPage");
-        return;
-    }
-
-    try {
-        const { data: existingLike, error: checkError } =
-            await supabaseClient
-                .from("likes")
-                .select("video_id, user_id")
-                .eq("video_id", videoId)
-                .eq("user_id", currentUser.id)
-                .maybeSingle();
-
-        if (checkError) throw checkError;
-
-        if (existingLike) {
-            // Unlike the video.
-            const { error } = await supabaseClient
-                .from("likes")
-                .delete()
-                .eq("video_id", videoId)
-                .eq("user_id", currentUser.id);
-
-            if (error) throw error;
-
-        } else {
-            // Like the video.
-            const { error } = await supabaseClient
-                .from("likes")
-                .insert({
-                    video_id: videoId,
-                    user_id: currentUser.id
-                });
-
-            if (error) throw error;
-        }
-
-        // Refresh the displayed like counts and buttons.
-        await loadLikesForVideos(allVideos);
-
-    } catch (error) {
-        console.error("Like action error:", error);
-        alert("Like action failed: " + error.message);
-    }
-}
-
-
-/* ==========================================
-   OPEN VIDEO COMMENTS
-========================================== */
-
-async function openComments(videoId) {
-    currentCommentVideoId = videoId;
-
-    const video = allVideos.find(item => item.id === videoId);
-
-    const info = getElement("commentsVideoInfo");
-
-    if (info) {
-        info.textContent = video
-            ? "Comments for: " + video.title
-            : "Video comments";
-    }
-
-    if (getElement("commentInput")) {
-        getElement("commentInput").value = "";
-    }
-
-    showMessage("commentMessage", "");
-
-    showPage("commentsPage");
-
-    await loadComments(videoId);
-}
-
-
-/* ==========================================
-   LOAD VIDEO COMMENTS
-========================================== */
-
-async function loadComments(videoId) {
-    const container = getElement("commentsList");
-
-    if (!container) return;
-
-    container.innerHTML = `
-        <div class="empty-state">Loading comments...</div>
-    `;
-
-    const { data, error } = await supabaseClient
-        .from("comments")
-        .select("*")
-        .eq("video_id", videoId)
-        .order("created_at", { ascending: true });
-
-    if (error) {
-        console.error("Comments loading error:", error.message);
-
-        container.innerHTML = `
-            <div class="empty-state">
-                Unable to load comments: ${safeText(error.message)}
-            </div>
-        `;
-
-        return;
-    }
-
-    if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                No comments yet. Be the first to comment!
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML = data.map(comment => {
-        const canDelete =
-            currentUser &&
-            (
-                comment.user_id === currentUser.id ||
-                isJienxsOwner
-            );
-
-        const commentDate = comment.created_at
-            ? new Date(comment.created_at).toLocaleString()
-            : "";
-
-        return `
-            <div class="comment-item">
-
-                <div class="comment-content">
-
-                    <strong>
-                        ${safeText(comment.creator_name || "JIENXS User")}
-                    </strong>
-
-                    <p>${safeText(comment.content || "")}</p>
-
-                    <small>${safeText(commentDate)}</small>
-
-                </div>
-
-                ${
-                    canDelete
-                    ? `
-                        <button
-                            class="delete-button"
-                            onclick="deleteComment('${safeText(comment.id)}')"
-                        >
-                            Delete
-                        </button>
-                    `
-                    : ""
-                }
-
-            </div>
-        `;
-    }).join("");
-}
-
-
-/* ==========================================
-   ADD A COMMENT
-========================================== */
-
-async function addComment() {
-    if (!currentUser) {
-        showMessage(
-            "commentMessage",
-            "Please sign in before commenting.",
-            true
-        );
-
-        showPage("authPage");
-        return;
-    }
-
-    if (!currentCommentVideoId) {
-        showMessage(
-            "commentMessage",
-            "Please open a video before commenting.",
-            true
-        );
-        return;
-    }
-
-    const input = getElement("commentInput");
-    const content = input?.value.trim();
-
-    if (!content) {
-        showMessage(
-            "commentMessage",
-            "Please write a comment first.",
-            true
-        );
-        return;
-    }
+  if (!requireLogin()) return;
+
+  const title = $("videoTitle").value.trim();
+  const description = $("videoDescription").value.trim();
+  const category = $("videoCategory").value;
+  const file = $("videoFile").files[0];
+
+  clearMessage("uploadMessage");
+
+  if (!title) {
+    uploadStatus("Please enter a video title.", "error");
+    return;
+  }
+
+  if (!file) {
+    uploadStatus("Please select a video file.", "error");
+    return;
+  }
+
+  if (!file.type.startsWith("video/")) {
+    uploadStatus("Please select a valid video file.", "error");
+    return;
+  }
+
+  if (file.size > MAX_VIDEO_SIZE) {
+    uploadStatus("Your video exceeds the 100 MB limit.", "error");
+    return;
+  }
+
+  const allowedCategories = [
+    "Football",
+    "Gaming",
+    "Skills",
+    "Other"
+  ];
+
+  if (!allowedCategories.includes(category)) {
+    uploadStatus("Invalid video category.", "error");
+    return;
+  }
+
+  const button = $("uploadButton");
+  button.disabled = true;
+  button.textContent = "Uploading...";
+
+  let uploadedStoragePath = null;
+
+  try {
+    const fileExtension =
+      file.name.split(".").pop().toLowerCase().replace(/[^a-z0-9]/g, "");
+
+    const uniqueFileName =
+      currentUser.id + "/" +
+      crypto.randomUUID() + "." +
+      (fileExtension || "mp4");
+
+    uploadStatus("Uploading video to JIENXS storage...");
+
+    const { data: uploadData, error: uploadError } =
+      await supabaseClient.storage
+        .from(JIENXS_STORAGE_BUCKET)
+        .upload(uniqueFileName, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type
+        });
+
+    if (uploadError) throw uploadError;
+
+    uploadedStoragePath = uploadData.path;
+
+    const { data: publicData } =
+      supabaseClient.storage
+        .from(JIENXS_STORAGE_BUCKET)
+        .getPublicUrl(uploadData.path);
+
+    const videoURL = publicData.publicUrl;
 
     const creatorName =
-        currentProfile?.nickname ||
-        currentProfile?.username ||
-        currentUser.email?.split("@")[0] ||
-        "JIENXS User";
+      currentProfile?.nickname ||
+      currentUser.user_metadata?.nickname ||
+      currentUser.email.split("@")[0];
 
-    showMessage("commentMessage", "Posting comment...");
+    uploadStatus("Saving video details...");
 
-    try {
-        const { error } = await supabaseClient
-            .from("comments")
-            .insert({
-                video_id: currentCommentVideoId,
-                user_id: currentUser.id,
-                creator_name: creatorName,
-                content: content
-            });
+    const { error: databaseError } =
+      await supabaseClient
+        .from("videos")
+        .insert({
+          title: title,
+          description: description,
+          category: category,
+          creator_id: currentUser.id,
+          creator_name: creatorName,
+          storage_path: uploadedStoragePath,
+          video_url: videoURL,
+          status: "published"
+        });
 
-        if (error) throw error;
+    if (databaseError) throw databaseError;
 
-        if (input) input.value = "";
+    $("videoTitle").value = "";
+    $("videoDescription").value = "";
+    $("videoFile").value = "";
 
-        showMessage("commentMessage", "Comment posted successfully.");
+    uploadStatus(
+      "Your video has been uploaded successfully!",
+      "success"
+    );
 
-        await loadComments(currentCommentVideoId);
+    await loadVideos();
+    await loadMyVideos();
 
-    } catch (error) {
-        console.error("Comment posting error:", error);
+    setTimeout(() => showPage("homePage"), 1200);
 
-        showMessage(
-            "commentMessage",
-            "Comment failed: " + error.message,
-            true
-        );
+  } catch (error) {
+    console.error("JIENXS upload error:", error);
+
+    // If the database insert fails, remove the newly uploaded file
+    // to avoid leaving an unnecessary storage file behind.
+    if (uploadedStoragePath) {
+      const { error: cleanupError } =
+        await supabaseClient.storage
+          .from(JIENXS_STORAGE_BUCKET)
+          .remove([uploadedStoragePath]);
+
+      if (cleanupError) {
+        console.error("Storage cleanup error:", cleanupError);
+      }
     }
+
+    uploadStatus(
+      "Upload failed: " + error.message,
+      "error"
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Upload Video";
+  }
 }
 
+/* =========================================
+   LOAD MY VIDEOS
+========================================= */
 
-/* ==========================================
-   DELETE A COMMENT
-========================================== */
+async function loadMyVideos() {
+  if (!currentUser) return;
+
+  const container = $("myVideos");
+  if (!container) return;
+
+  container.innerHTML =
+    '<p class="empty-state">Loading your videos...</p>';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("videos")
+      .select("*")
+      .eq("creator_id", currentUser.id)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    const videos = data || [];
+
+    $("profileVideoCount").textContent = videos.length;
+
+    if (!videos.length) {
+      container.innerHTML =
+        '<p class="empty-state">You have not uploaded any videos yet.</p>';
+      return;
+    }
+
+    container.innerHTML = videos.map(video => {
+      const videoCard = renderVideoCard(video, {
+        allowDelete: true
+      });
+
+      return videoCard;
+    }).join("");
+
+    attachVideoCardEvents(container);
+
+  } catch (error) {
+    console.error("My videos error:", error);
+
+    container.innerHTML =
+      '<p class="empty-state">Could not load your videos: ' +
+      escapeHTML(error.message) + '</p>';
+  }
+}
+
+/* =========================================
+   DELETE VIDEO
+========================================= */
+
+async function deleteVideo(videoId) {
+  if (!requireLogin()) return;
+
+  if (!confirm(
+    "Are you sure you want to permanently delete this video?"
+  )) return;
+
+  try {
+    const { data: video, error: findError } =
+      await supabaseClient
+        .from("videos")
+        .select("*")
+        .eq("id", videoId)
+        .eq("creator_id", currentUser.id)
+        .maybeSingle();
+
+    if (findError) throw findError;
+
+    if (!video) {
+      alert("Video not found or you do not own this video.");
+      return;
+    }
+
+    const { error: deleteError } =
+      await supabaseClient
+        .from("videos")
+        .delete()
+        .eq("id", videoId)
+        .eq("creator_id", currentUser.id);
+
+    if (deleteError) throw deleteError;
+
+    // Remove the stored file after the database record is deleted.
+    if (video.storage_path) {
+      const { error: storageError } =
+        await supabaseClient.storage
+          .from(JIENXS_STORAGE_BUCKET)
+          .remove([video.storage_path]);
+
+      if (storageError) {
+        console.error("Storage deletion warning:", storageError);
+
+        alert(
+          "The video record was deleted, but its storage file could not be removed. Check your storage delete policy."
+        );
+      }
+    }
+
+    alert("Your video has been deleted.");
+
+    allVideos = allVideos.filter(video =>
+      video.id !== videoId
+    );
+
+    renderVideos();
+    renderShorts();
+    renderExplore();
+
+    await loadMyVideos();
+
+  } catch (error) {
+    console.error("Video deletion error:", error);
+    alert("Could not delete video: " + error.message);
+  }
+}
+
+/* =========================================
+   VIDEO LIBRARY REFRESH
+========================================= */
+
+async function refreshMyVideos() {
+  await loadVideos();
+  await loadMyVideos();
+}
+
+console.log("JIENXS Part 4 loaded.");
+  
+/* =========================================
+   JIENXS PART 5
+   LIKES AND COMMENTS SYSTEM
+========================================= */
+
+/* =========================================
+   LOAD LIKES FOR VIDEO CARDS
+========================================= */
+
+async function loadLikesForVideos() {
+  const videoIds = [
+    ...new Set(
+      [...document.querySelectorAll(".video-card[data-video-id]")]
+        .map(card => card.dataset.videoId)
+        .filter(Boolean)
+    )
+  ];
+
+  if (!videoIds.length) return;
+
+  try {
+    const { data: likes, error } = await supabaseClient
+      .from("likes")
+      .select("video_id,user_id")
+      .in("video_id", videoIds);
+
+    if (error) throw error;
+
+    const likeRows = likes || [];
+
+    document.querySelectorAll(
+      ".video-card[data-video-id]"
+    ).forEach(card => {
+      const videoId = card.dataset.videoId;
+
+      const videoLikes = likeRows.filter(
+        like => like.video_id === videoId
+      );
+
+      const count = videoLikes.length;
+
+      const userLiked = currentUser &&
+        videoLikes.some(
+          like => like.user_id === currentUser.id
+        );
+
+      const button = card.querySelector(".like-button");
+
+      if (!button) return;
+
+      const countElement = button.querySelector(".like-count");
+
+      if (countElement) {
+        countElement.textContent = count;
+      }
+
+      button.classList.toggle("liked", !!userLiked);
+
+      button.setAttribute(
+        "aria-label",
+        userLiked ? "Unlike video" : "Like video"
+      );
+    });
+
+  } catch (error) {
+    console.error("Like loading error:", error);
+  }
+}
+
+/* =========================================
+   LIKE OR UNLIKE A VIDEO
+========================================= */
+
+async function toggleLike(videoId) {
+  if (!requireLogin()) return;
+
+  const button = document.querySelector(
+    `.like-button[data-video-id="${CSS.escape(videoId)}"]`
+  );
+
+  if (button) button.disabled = true;
+
+  try {
+    const { data: existingLike, error: checkError } =
+      await supabaseClient
+        .from("likes")
+        .select("video_id,user_id")
+        .eq("video_id", videoId)
+        .eq("user_id", currentUser.id)
+        .maybeSingle();
+
+    if (checkError) throw checkError;
+
+    if (existingLike) {
+      const { error: unlikeError } =
+        await supabaseClient
+          .from("likes")
+          .delete()
+          .eq("video_id", videoId)
+          .eq("user_id", currentUser.id);
+
+      if (unlikeError) throw unlikeError;
+
+    } else {
+      const { error: likeError } =
+        await supabaseClient
+          .from("likes")
+          .insert({
+            video_id: videoId,
+            user_id: currentUser.id
+          });
+
+      if (likeError) throw likeError;
+    }
+
+    await loadLikesForVideos();
+
+  } catch (error) {
+    console.error("Like action error:", error);
+    alert("Could not update like: " + error.message);
+
+  } finally {
+    if (button) button.disabled = false;
+  }
+}
+
+/* =========================================
+   OPEN VIDEO COMMENTS
+========================================= */
+
+async function openComments(videoId) {
+  activeVideoId = videoId;
+
+  const video = allVideos.find(
+    item => item.id === videoId
+  );
+
+  const info = $("commentsVideoInfo");
+
+  if (info) {
+    info.innerHTML = video
+      ? `
+        <div class="form-card">
+          <strong>${escapeHTML(video.title)}</strong>
+          <p class="muted">By ${escapeHTML(video.creator_name || "JIENXS Creator")}</p>
+        </div>
+      `
+      : "";
+  }
+
+  $("commentInput").value = "";
+  clearMessage("commentMessage");
+
+  showPage("commentsPage");
+
+  await loadComments(videoId);
+}
+
+/* =========================================
+   LOAD VIDEO COMMENTS
+========================================= */
+
+async function loadComments(videoId = activeVideoId) {
+  if (!videoId) return;
+
+  const container = $("commentsList");
+
+  container.innerHTML =
+    '<p class="empty-state">Loading comments...</p>';
+
+  try {
+    const { data, error } = await supabaseClient
+      .from("comments")
+      .select("*")
+      .eq("video_id", videoId)
+      .order("created_at", { ascending: true });
+
+    if (error) throw error;
+
+    const comments = data || [];
+
+    if (!comments.length) {
+      container.innerHTML =
+        '<p class="empty-state">No comments yet. Be the first to comment!</p>';
+      return;
+    }
+
+    container.innerHTML = comments.map(comment => {
+      const ownComment =
+        currentUser &&
+        comment.user_id === currentUser.id;
+
+      return `
+        <div class="comment-item">
+          <div class="comment-author">
+            ${escapeHTML(comment.creator_name || "JIENXS User")}
+          </div>
+
+          <div class="comment-content">
+            ${escapeHTML(comment.content || "")}
+          </div>
+
+          <div class="video-meta">
+            ${escapeHTML(formatVideoDate(comment.created_at))}
+          </div>
+
+          ${
+            ownComment
+            ? `<button class="danger-button"
+                data-comment-delete="${escapeHTML(comment.id || "")}">
+                Delete Comment
+              </button>`
+            : ""
+          }
+        </div>
+      `;
+    }).join("");
+
+    // Attach delete buttons only when a comment has a usable ID.
+    container.querySelectorAll("[data-comment-delete]").forEach(button => {
+      button.addEventListener("click", () => {
+        const commentId = button.dataset.commentDelete;
+
+        if (commentId) {
+          deleteComment(commentId);
+        }
+      });
+    });
+
+  } catch (error) {
+    console.error("Comment loading error:", error);
+
+    container.innerHTML =
+      '<p class="empty-state">Could not load comments: ' +
+      escapeHTML(error.message) + '</p>';
+  }
+}
+
+/* =========================================
+   POST COMMENT
+========================================= */
+
+async function submitComment() {
+  if (!requireLogin()) return;
+
+  if (!activeVideoId) {
+    showMessage("commentMessage", "No video selected.");
+    return;
+  }
+
+  const content = $("commentInput").value.trim();
+
+  if (!content) {
+    showMessage("commentMessage", "Please write a comment.");
+    return;
+  }
+
+  if (content.length > 2000) {
+    showMessage("commentMessage", "Comment is too long.");
+    return;
+  }
+
+  const button = $("commentButton");
+  button.disabled = true;
+  button.textContent = "Posting...";
+
+  try {
+    const creatorName =
+      currentProfile?.nickname ||
+      currentUser.user_metadata?.nickname ||
+      currentUser.email.split("@")[0];
+
+    const { error } = await supabaseClient
+      .from("comments")
+      .insert({
+        video_id: activeVideoId,
+        user_id: currentUser.id,
+        creator_name: creatorName,
+        content: content
+      });
+
+    if (error) throw error;
+
+    $("commentInput").value = "";
+
+    showMessage(
+      "commentMessage",
+      "Your comment has been posted!",
+      "success"
+    );
+
+    await loadComments(activeVideoId);
+
+  } catch (error) {
+    console.error("Comment posting error:", error);
+
+    showMessage(
+      "commentMessage",
+      "Could not post comment: " + error.message
+    );
+
+  } finally {
+    button.disabled = false;
+    button.textContent = "Post Comment";
+  }
+}
+
+/* =========================================
+   DELETE OWN COMMENT
+========================================= */
 
 async function deleteComment(commentId) {
-    if (!currentUser) {
-        alert("Please sign in first.");
-        return;
-    }
+  if (!requireLogin()) return;
 
-    const confirmed = confirm(
-        "Are you sure you want to delete this comment?"
+  if (!confirm("Are you sure you want to delete this comment?")) {
+    return;
+  }
+
+  try {
+    const { error } = await supabaseClient
+      .from("comments")
+      .delete()
+      .eq("id", commentId)
+      .eq("user_id", currentUser.id);
+
+    if (error) throw error;
+
+    await loadComments(activeVideoId);
+
+    alert("Comment deleted successfully.");
+
+  } catch (error) {
+    console.error("Comment deletion error:", error);
+
+    alert(
+      "Could not delete comment: " + error.message
     );
-
-    if (!confirmed) return;
-
-    try {
-        // Retrieve the comment to verify its owner.
-        const { data: comment, error: fetchError } =
-            await supabaseClient
-                .from("comments")
-                .select("id, user_id, video_id")
-                .eq("id", commentId)
-                .maybeSingle();
-
-        if (fetchError) throw fetchError;
-
-        if (!comment) {
-            alert("Comment not found.");
-            return;
-        }
-
-        const isCommentOwner =
-            comment.user_id === currentUser.id;
-
-        if (!isCommentOwner && !isJienxsOwner) {
-            alert("You are not allowed to delete this comment.");
-            return;
-        }
-
-        const { error: deleteError } = await supabaseClient
-            .from("comments")
-            .delete()
-            .eq("id", commentId);
-
-        if (deleteError) throw deleteError;
-
-        alert("Comment deleted successfully.");
-
-        await loadComments(comment.video_id);
-
-    } catch (error) {
-        console.error("Comment deletion error:", error);
-
-        alert("Could not delete comment: " + error.message);
-    }
+  }
 }
 
+/* =========================================
+   COMMENT REFRESH
+========================================= */
 
-/* ==========================================
-   CONNECT COMMENT INPUT
-========================================== */
-
-getElement("commentInput")?.addEventListener("keydown", event => {
-    if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
-        addComment();
-    }
-});
-
-
-/* ==========================================
-   INITIAL LIKE COUNTS
-========================================== */
-
-if (allVideos.length > 0) {
-    loadLikesForVideos(allVideos);
-                          }
-    /* ==========================================
-   JIENXS — PART 6
-   FOLLOW, UNFOLLOW AND CREATOR PROFILES
-========================================== */
-
-let currentCreatorId = null;
-
-
-/* ==========================================
-   LOAD FOLLOWER AND FOLLOWING COUNTS
-========================================== */
-
-async function loadFollowCounts(userId) {
-    if (!userId) return {
-        followers: 0,
-        following: 0
-    };
-
-    const [followersResult, followingResult] = await Promise.all([
-
-        supabaseClient
-            .from("follows")
-            .select("id", { count: "exact", head: true })
-            .eq("following_id", userId),
-
-        supabaseClient
-            .from("follows")
-            .select("id", { count: "exact", head: true })
-            .eq("follower_id", userId)
-
-    ]);
-
-    if (followersResult.error) {
-        console.error(
-            "Follower count error:",
-            followersResult.error.message
-        );
-    }
-
-    if (followingResult.error) {
-        console.error(
-            "Following count error:",
-            followingResult.error.message
-        );
-    }
-
-    return {
-        followers: followersResult.count || 0,
-        following: followingResult.count || 0
-    };
+async function refreshComments() {
+  if (activeVideoId) {
+    await loadComments(activeVideoId);
+  }
 }
 
+console.log("JIENXS Part 5 loaded.");
+  
+/* =========================================
+   JIENXS PART 6
+   CREATOR PROFILES AND FOLLOW SYSTEM
+========================================= */
 
-/* ==========================================
-   UPDATE MY PROFILE FOLLOW COUNTS
-========================================== */
-
-async function updateMyFollowCounts() {
-    if (!currentUser) return;
-
-    const counts = await loadFollowCounts(currentUser.id);
-
-    if (getElement("followerCount")) {
-        getElement("followerCount").textContent =
-            counts.followers;
-    }
-
-    if (getElement("followingCount")) {
-        getElement("followingCount").textContent =
-            counts.following;
-    }
-}
-
-
-/* ==========================================
-   OPEN A CREATOR PROFILE
-========================================== */
+/* =========================================
+   OPEN CREATOR PROFILE
+========================================= */
 
 async function openCreator(creatorId) {
-    if (!creatorId) return;
+  if (!creatorId) return;
 
-    currentCreatorId = creatorId;
+  activeCreatorId = creatorId;
 
-    showPage("creatorPage");
+  if (currentUser && creatorId === currentUser.id) {
+    showPage("profilePage");
+    return;
+  }
 
-    const avatar = getElement("creatorAvatar");
-    const nickname = getElement("creatorNickname");
-    const username = getElement("creatorUsername");
-    const videoContainer = getElement("creatorVideos");
+  showPage("creatorPage");
 
-    if (avatar) avatar.textContent = "...";
-    if (nickname) nickname.textContent = "Loading creator...";
-    if (username) username.textContent = "";
+  $("creatorNickname").textContent = "Loading creator...";
+  $("creatorUsername").textContent = "";
+  $("creatorAvatar").textContent = "J";
+  $("creatorFollowerCount").textContent = "0";
+  $("creatorVideoCount").textContent = "0";
 
-    if (videoContainer) {
-        videoContainer.innerHTML = `
-            <div class="empty-state">Loading creator videos...</div>
-        `;
-    }
+  const videoContainer = $("creatorVideos");
 
-    // Get creator profile.
+  videoContainer.innerHTML =
+    '<p class="empty-state">Loading creator videos...</p>';
+
+  try {
     const { data: profile, error: profileError } =
-        await supabaseClient
-            .from("profiles")
-            .select("id, username, nickname")
-            .eq("id", creatorId)
-            .maybeSingle();
+      await supabaseClient
+        .from("profiles")
+        .select("id,username,nickname")
+        .eq("id", creatorId)
+        .maybeSingle();
 
-    if (profileError) {
-        console.error(
-            "Creator profile error:",
-            profileError.message
-        );
+    if (profileError) throw profileError;
+
+    if (!profile) {
+      $("creatorNickname").textContent = "JIENXS Creator";
+      $("creatorUsername").textContent = "@creator";
+    } else {
+      $("creatorNickname").textContent =
+        profile.nickname || "JIENXS Creator";
+
+      $("creatorUsername").textContent =
+        "@" + (profile.username || "creator");
+
+      $("creatorAvatar").textContent =
+        (profile.nickname || "J").charAt(0).toUpperCase();
     }
 
-    const creator = profile || {
-        id: creatorId,
-        username: "jienxs_creator",
-        nickname: "JIENXS Creator"
-    };
+    const { data: videos, error: videosError } =
+      await supabaseClient
+        .from("videos")
+        .select("*")
+        .eq("creator_id", creatorId)
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
 
-    if (avatar) {
-        avatar.textContent =
-            (creator.nickname || "J").charAt(0).toUpperCase();
+    if (videosError) throw videosError;
+
+    const creatorVideos = videos || [];
+
+    $("creatorVideoCount").textContent =
+      creatorVideos.length;
+
+    if (!creatorVideos.length) {
+      videoContainer.innerHTML =
+        '<p class="empty-state">This creator has not uploaded any videos yet.</p>';
+    } else {
+      videoContainer.innerHTML = creatorVideos.map(video =>
+        renderVideoCard(video)
+      ).join("");
+
+      attachVideoCardEvents(videoContainer);
     }
 
-    if (nickname) {
-        nickname.textContent =
-            creator.nickname || creator.username;
-    }
+    await refreshCreatorFollowStats();
+    await updateFollowButton();
 
-    if (username) {
-        username.textContent =
-            "@" + (creator.username || "jienxs_creator");
-    }
+  } catch (error) {
+    console.error("Creator profile error:", error);
 
-    // Get creator statistics.
-    const counts = await loadFollowCounts(creatorId);
-
-    if (getElement("creatorFollowerCount")) {
-        getElement("creatorFollowerCount").textContent =
-            counts.followers;
-    }
-
-    if (getElement("creatorVideoCount")) {
-        getElement("creatorVideoCount").textContent =
-            allVideos.filter(video =>
-                video.creator_id === creatorId
-            ).length;
-    }
-
-    // Load creator's published videos.
-    const creatorVideos = allVideos.filter(video =>
-        video.creator_id === creatorId
-    );
-
-    if (videoContainer) {
-        if (creatorVideos.length === 0) {
-            videoContainer.innerHTML = `
-                <div class="empty-state">
-                    This creator has not uploaded any videos yet.
-                </div>
-            `;
-        } else {
-            videoContainer.innerHTML = creatorVideos
-                .map(video => renderVideoCard(video))
-                .join("");
-
-            if (typeof loadLikesForVideos === "function") {
-                loadLikesForVideos(creatorVideos);
-            }
-        }
-    }
-
-    await updateFollowButton(creatorId);
+    videoContainer.innerHTML =
+      '<p class="empty-state">Could not load creator: ' +
+      escapeHTML(error.message) + '</p>';
+  }
 }
 
+/* =========================================
+   FOLLOW OR UNFOLLOW BUTTON
+========================================= */
 
-/* ==========================================
-   UPDATE FOLLOW BUTTON
-========================================== */
+async function updateFollowButton() {
+  const button = $("followButton");
 
-async function updateFollowButton(creatorId) {
-    const button = getElement("followButton");
+  if (!button || !activeCreatorId) return;
 
-    if (!button) return;
+  if (!currentUser) {
+    button.textContent = "Sign in to Follow";
+    button.disabled = false;
+    return;
+  }
 
-    if (!currentUser) {
-        button.textContent = "Sign in to Follow";
-        button.style.display = "";
-        button.disabled = false;
-        return;
-    }
-
-    if (currentUser.id === creatorId) {
-        button.style.display = "none";
-        return;
-    }
-
-    button.style.display = "";
+  if (currentUser.id === activeCreatorId) {
+    button.textContent = "Your Profile";
     button.disabled = true;
-    button.textContent = "Checking...";
+    return;
+  }
 
+  try {
     const { data, error } = await supabaseClient
+      .from("follows")
+      .select("id")
+      .eq("follower_id", currentUser.id)
+      .eq("following_id", activeCreatorId)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    button.textContent = data ? "Unfollow" : "Follow";
+    button.disabled = false;
+
+  } catch (error) {
+    console.error("Follow button error:", error);
+    button.textContent = "Follow";
+    button.disabled = false;
+  }
+}
+
+/* =========================================
+   TOGGLE FOLLOW
+========================================= */
+
+async function toggleFollow() {
+  if (!requireLogin()) return;
+
+  if (!activeCreatorId) return;
+
+  if (activeCreatorId === currentUser.id) {
+    alert("You cannot follow your own account.");
+    return;
+  }
+
+  const button = $("followButton");
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "Please wait...";
+  }
+
+  try {
+    const { data: existingFollow, error: checkError } =
+      await supabaseClient
         .from("follows")
         .select("id")
         .eq("follower_id", currentUser.id)
-        .eq("following_id", creatorId)
+        .eq("following_id", activeCreatorId)
         .maybeSingle();
 
-    if (error) {
-        console.error("Follow status error:", error.message);
-        button.textContent = "Follow";
-        button.disabled = false;
-        return;
+    if (checkError) throw checkError;
+
+    if (existingFollow) {
+      const { error } = await supabaseClient
+        .from("follows")
+        .delete()
+        .eq("follower_id", currentUser.id)
+        .eq("following_id", activeCreatorId);
+
+      if (error) throw error;
+
+    } else {
+      const { error } = await supabaseClient
+        .from("follows")
+        .insert({
+          follower_id: currentUser.id,
+          following_id: activeCreatorId
+        });
+
+      if (error) throw error;
     }
 
-    button.textContent = data ? "Following" : "Follow";
-    button.disabled = false;
+    await updateFollowButton();
+    await refreshCreatorFollowStats();
+
+    if (currentUser) {
+      await refreshProfileStatistics();
+    }
+
+  } catch (error) {
+    console.error("Follow action error:", error);
+
+    alert("Follow action failed: " + error.message);
+
+    await updateFollowButton();
+
+  } finally {
+    if (button) button.disabled = false;
+  }
 }
 
+/* =========================================
+   CREATOR FOLLOWER STATISTICS
+========================================= */
 
-/* ==========================================
-   FOLLOW OR UNFOLLOW CREATOR
-========================================== */
+async function refreshCreatorFollowStats() {
+  if (!activeCreatorId) return;
 
-async function toggleFollow() {
-    if (!currentUser) {
-        alert("Please sign in to follow creators.");
-        showPage("authPage");
-        return;
-    }
+  try {
+    const { count, error } = await supabaseClient
+      .from("follows")
+      .select("*", { count: "exact", head: true })
+      .eq("following_id", activeCreatorId);
 
-    if (!currentCreatorId) {
-        alert("Creator profile not found.");
-        return;
-    }
+    if (error) throw error;
 
-    if (currentUser.id === currentCreatorId) {
-        alert("You cannot follow yourself.");
-        return;
-    }
+    $("creatorFollowerCount").textContent = count || 0;
 
-    const button = getElement("followButton");
-
-    if (button) {
-        button.disabled = true;
-        button.textContent = "Please wait...";
-    }
-
-    try {
-        const { data: existingFollow, error: checkError } =
-            await supabaseClient
-                .from("follows")
-                .select("id")
-                .eq("follower_id", currentUser.id)
-                .eq("following_id", currentCreatorId)
-                .maybeSingle();
-
-        if (checkError) throw checkError;
-
-        if (existingFollow) {
-            // Unfollow creator.
-            const { error } = await supabaseClient
-                .from("follows")
-                .delete()
-                .eq("follower_id", currentUser.id)
-                .eq("following_id", currentCreatorId);
-
-            if (error) throw error;
-
-        } else {
-            // Follow creator.
-            const { error } = await supabaseClient
-                .from("follows")
-                .insert({
-                    follower_id: currentUser.id,
-                    following_id: currentCreatorId
-                });
-
-            if (error) throw error;
-        }
-
-        // Refresh creator statistics and button.
-        const counts = await loadFollowCounts(currentCreatorId);
-
-        if (getElement("creatorFollowerCount")) {
-            getElement("creatorFollowerCount").textContent =
-                counts.followers;
-        }
-
-        await updateFollowButton(currentCreatorId);
-
-        await updateMyFollowCounts();
-
-    } catch (error) {
-        console.error("Follow action error:", error);
-
-        alert("Follow action failed: " + error.message);
-
-        if (button) {
-            button.disabled = false;
-        }
-    }
+  } catch (error) {
+    console.error("Creator follower count:", error);
+  }
 }
 
-
-/* ==========================================
-   REFRESH PROFILE STATISTICS
-========================================== */
+/* =========================================
+   MY FOLLOWER AND FOLLOWING STATISTICS
+========================================= */
 
 async function refreshProfileStatistics() {
-    if (!currentUser) return;
+  if (!currentUser) return;
 
-    await updateMyFollowCounts();
+  try {
+    const { count: followers, error: followersError } =
+      await supabaseClient
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("following_id", currentUser.id);
 
-    const { count, error } = await supabaseClient
-        .from("videos")
-        .select("id", { count: "exact", head: true })
-        .eq("creator_id", currentUser.id)
-        .eq("status", "published");
+    if (followersError) throw followersError;
 
-    if (error) {
-        console.error("Profile video count error:", error.message);
-    }
+    const { count: following, error: followingError } =
+      await supabaseClient
+        .from("follows")
+        .select("*", { count: "exact", head: true })
+        .eq("follower_id", currentUser.id);
 
-    if (getElement("profileVideoCount")) {
-        getElement("profileVideoCount").textContent =
-            count || 0;
-    }
+    if (followingError) throw followingError;
+
+    $("followerCount").textContent = followers || 0;
+    $("followingCount").textContent = following || 0;
+
+  } catch (error) {
+    console.error("Profile statistics:", error);
+  }
 }
 
+/* =========================================
+   LOAD FOLLOWING PROFILE INFORMATION
+========================================= */
 
-/* ==========================================
-   CONNECT FOLLOW BUTTON
-========================================== */
+async function loadFollowingStatistics() {
+  if (!currentUser) return;
 
-getElement("followButton")?.addEventListener(
-    "click",
-    toggleFollow
-);
-
-
-/* ==========================================
-   REFRESH FOLLOW COUNTS AFTER LOGIN
-========================================== */
-
-if (currentUser) {
-    updateMyFollowCounts();
-      }
-   /* ==========================================
-   JIENXS — PART 7
-   NOTIFICATIONS AND UNREAD COUNTS
-========================================== */
-
-let notificationRefreshTimer = null;
-
-
-/* ==========================================
-   LOAD UNREAD NOTIFICATION COUNT
-========================================== */
-
-async function loadUnreadNotificationCount() {
-    if (!currentUser) {
-        updateNotificationBadge(0);
-        return 0;
-    }
-
-    const { count, error } = await supabaseClient
-        .from("notifications")
-        .select("id", {
-            count: "exact",
-            head: true
-        })
-        .eq("recipient_id", currentUser.id)
-        .eq("is_read", false);
-
-    if (error) {
-        console.error(
-            "Unread notification count error:",
-            error.message
-        );
-
-        return 0;
-    }
-
-    updateNotificationBadge(count || 0);
-
-    return count || 0;
+  await refreshProfileStatistics();
 }
 
+console.log("JIENXS Part 6 loaded.");
+  
+/* =========================================
+   JIENXS PART 7
+   NOTIFICATIONS SYSTEM
+========================================= */
 
-/* ==========================================
-   DISPLAY NOTIFICATION BADGE
-========================================== */
+/* =========================================
+   OPEN NOTIFICATIONS PAGE
+========================================= */
 
-function updateNotificationBadge(count) {
-    const badge = getElement("notificationBadge");
+async function openNotifications() {
+  if (!requireLogin()) return;
 
-    if (!badge) return;
+  showPage("notificationsPage");
 
-    const unread = Number(count) || 0;
-
-    badge.textContent = unread > 99 ? "99+" : unread;
-
-    badge.style.display = unread > 0 ? "inline-flex" : "none";
+  await loadNotifications();
 }
 
-
-/* ==========================================
-   NOTIFICATION ICONS
-========================================== */
-
-function getNotificationIcon(type) {
-    const icons = {
-        like: "❤️",
-        comment: "💬",
-        follow: "👤"
-    };
-
-    return icons[type] || "🔔";
-}
-
-
-/* ==========================================
+/* =========================================
    LOAD NOTIFICATIONS
-========================================== */
+========================================= */
 
 async function loadNotifications() {
-    const container = getElement("notificationsList");
+  if (!currentUser) return;
 
-    if (!currentUser) {
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    Please sign in to view your notifications.
-                </div>
-            `;
-        }
+  const container = $("notificationsList");
 
-        updateNotificationBadge(0);
-        return;
-    }
+  if (!container) return;
 
-    if (container) {
-        container.innerHTML = `
-            <div class="empty-state">
-                Loading notifications...
-            </div>
-        `;
-    }
+  container.innerHTML =
+    '<p class="empty-state">Loading notifications...</p>';
 
+  try {
     const { data, error } = await supabaseClient
-        .from("notifications")
-        .select(`
-            id,
-            actor_id,
-            type,
-            video_id,
-            message,
-            is_read,
-            created_at
-        `)
-        .eq("recipient_id", currentUser.id)
-        .order("created_at", {
-            ascending: false
-        })
-        .limit(100);
+      .from("notifications")
+      .select("*")
+      .eq("recipient_id", currentUser.id)
+      .order("created_at", { ascending: false })
+      .limit(100);
 
-    if (error) {
-        console.error(
-            "Notification loading error:",
-            error.message
-        );
-
-        if (container) {
-            container.innerHTML = `
-                <div class="empty-state">
-                    Unable to load notifications:
-                    ${safeText(error.message)}
-                </div>
-            `;
-        }
-
-        return;
-    }
+    if (error) throw error;
 
     const notifications = data || [];
 
-    await loadUnreadNotificationCount();
+    const unreadCount = notifications.filter(
+      notification => !notification.is_read
+    ).length;
 
-    if (!container) return;
+    updateNotificationBadge(unreadCount);
 
-    if (notifications.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                You have no notifications yet.
-            </div>
-        `;
+    if (!notifications.length) {
+      container.innerHTML =
+        '<p class="empty-state">You have no notifications yet.</p>';
 
-        return;
-    }
-
-    // Fetch actor profiles separately.
-    const actorIds = [
-        ...new Set(
-            notifications
-                .map(notification => notification.actor_id)
-                .filter(Boolean)
-        )
-    ];
-
-    let actorProfiles = {};
-
-    if (actorIds.length > 0) {
-        const { data: profiles, error: profileError } =
-            await supabaseClient
-                .from("profiles")
-                .select("id, username, nickname")
-                .in("id", actorIds);
-
-        if (!profileError && profiles) {
-            profiles.forEach(profile => {
-                actorProfiles[profile.id] =
-                    profile.nickname ||
-                    profile.username ||
-                    "JIENXS User";
-            });
-        }
+      return;
     }
 
     container.innerHTML = notifications.map(notification => {
-        const actorName = notification.actor_id
-            ? actorProfiles[notification.actor_id] || "A JIENXS user"
-            : "A JIENXS user";
+      const typeLabels = {
+        like: "❤️ Liked your video",
+        comment: "💬 Commented on your video",
+        follow: "👤 Started following you"
+      };
 
-        const icon = getNotificationIcon(notification.type);
+      const label =
+        typeLabels[notification.type] || "JIENXS Notification";
 
-        const date = notification.created_at
-            ? new Date(notification.created_at).toLocaleString()
-            : "";
+      return `
+        <div class="notification-item ${
+          notification.is_read ? "" : "unread"
+        }">
 
-        const message = notification.message ||
-            "You have a new notification.";
+          <div class="notification-content">
+            <strong>${escapeHTML(label)}</strong>
 
-        return `
-            <div
-                class="notification-item ${notification.is_read ? "" : "unread"}"
-                data-notification-id="${safeText(notification.id)}"
-            >
+            <p>${escapeHTML(notification.message || "")}</p>
 
-                <div class="notification-icon">
-                    ${icon}
-                </div>
+            <small>
+              ${formatVideoDate(notification.created_at)}
+            </small>
+          </div>
 
-                <div class="notification-details">
+          <div class="notification-actions">
+            ${
+              !notification.is_read
+                ? `
+                  <button
+                    class="secondary-button"
+                    data-notification-read="${escapeHTML(notification.id)}"
+                  >
+                    Mark read
+                  </button>
+                `
+                : '<span class="read-label">Read</span>'
+            }
 
-                    <div class="notification-message">
-                        <strong>${safeText(actorName)}</strong>
-                        ${safeText(message)}
-                    </div>
+            ${
+              notification.video_id
+                ? `
+                  <button
+                    class="secondary-button"
+                    data-notification-video="${escapeHTML(notification.video_id)}"
+                  >
+                    View video
+                  </button>
+                `
+                : ""
+            }
+          </div>
 
-                    <div class="notification-date">
-                        ${safeText(date)}
-                    </div>
-
-                    ${
-                        notification.video_id
-                        ? `
-                            <button
-                                class="secondary-button"
-                                onclick="openComments('${safeText(notification.video_id)}')"
-                            >
-                                View video
-                            </button>
-                        `
-                        : ""
-                    }
-
-                    ${
-                        !notification.is_read
-                        ? `
-                            <button
-                                class="secondary-button"
-                                onclick="markNotificationRead('${safeText(notification.id)}')"
-                            >
-                                Mark as read
-                            </button>
-                        `
-                        : `
-                            <span class="notification-read-label">
-                                Read
-                            </span>
-                        `
-                    }
-
-                </div>
-
-            </div>
-        `;
+        </div>
+      `;
     }).join("");
+
+    attachNotificationEvents();
+
+  } catch (error) {
+    console.error("Notifications error:", error);
+
+    container.innerHTML =
+      '<p class="empty-state">Could not load notifications: ' +
+      escapeHTML(error.message) + '</p>';
+  }
 }
 
+/* =========================================
+   UPDATE NOTIFICATION BADGE
+========================================= */
 
-/* ==========================================
+function updateNotificationBadge(count) {
+  const badge = $("notificationBadge");
+
+  if (!badge) return;
+
+  const unread = Number(count) || 0;
+
+  badge.textContent = unread > 99 ? "99+" : unread;
+
+  badge.style.display = unread > 0 ? "inline-flex" : "none";
+}
+
+/* =========================================
    MARK ONE NOTIFICATION AS READ
-========================================== */
+========================================= */
 
 async function markNotificationRead(notificationId) {
-    if (!currentUser) return;
+  if (!currentUser || !notificationId) return;
 
+  try {
     const { error } = await supabaseClient
-        .from("notifications")
-        .update({
-            is_read: true
-        })
-        .eq("id", notificationId)
-        .eq("recipient_id", currentUser.id);
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("id", notificationId)
+      .eq("recipient_id", currentUser.id);
 
-    if (error) {
-        console.error(
-            "Mark notification read error:",
-            error.message
-        );
-
-        alert("Could not mark notification as read: " + error.message);
-        return;
-    }
+    if (error) throw error;
 
     await loadNotifications();
+
+  } catch (error) {
+    console.error("Mark notification read error:", error);
+
+    alert("Could not mark notification as read: " + error.message);
+  }
 }
 
-
-/* ==========================================
+/* =========================================
    MARK ALL NOTIFICATIONS AS READ
-========================================== */
+========================================= */
 
 async function markAllNotificationsRead() {
-    if (!currentUser) {
-        alert("Please sign in to continue.");
-        return;
-    }
+  if (!currentUser) return;
 
+  try {
     const { error } = await supabaseClient
-        .from("notifications")
-        .update({
-            is_read: true
-        })
-        .eq("recipient_id", currentUser.id)
-        .eq("is_read", false);
+      .from("notifications")
+      .update({ is_read: true })
+      .eq("recipient_id", currentUser.id)
+      .eq("is_read", false);
 
-    if (error) {
-        console.error(
-            "Mark all notifications read error:",
-            error.message
+    if (error) throw error;
+
+    await loadNotifications();
+
+  } catch (error) {
+    console.error("Mark all notifications error:", error);
+
+    alert("Could not mark notifications as read: " + error.message);
+  }
+}
+
+/* =========================================
+   NOTIFICATION BUTTON EVENTS
+========================================= */
+
+function attachNotificationEvents() {
+  const container = $("notificationsList");
+
+  if (!container) return;
+
+  container.querySelectorAll("[data-notification-read]")
+    .forEach(button => {
+      button.addEventListener("click", () => {
+        markNotificationRead(
+          button.dataset.notificationRead
         );
-
-        alert("Could not update notifications: " + error.message);
-        return;
-    }
-
-    await loadNotifications();
-
-    alert("All notifications have been marked as read.");
-}
-
-
-/* ==========================================
-   OPEN NOTIFICATIONS PAGE
-========================================== */
-
-async function openNotifications() {
-    if (!currentUser) {
-        alert("Please sign in to view notifications.");
-        showPage("authPage");
-        return;
-    }
-
-    showPage("notificationsPage");
-
-    await loadNotifications();
-}
-
-
-/* ==========================================
-   AUTOMATIC NOTIFICATION REFRESH
-========================================== */
-
-async function refreshNotifications() {
-    if (!currentUser) return;
-
-    await loadUnreadNotificationCount();
-
-    const notificationPage = getElement("notificationsPage");
-
-    if (notificationPage?.classList.contains("active")) {
-        await loadNotifications();
-    }
-}
-
-
-/* ==========================================
-   CONNECT NOTIFICATION BUTTON
-========================================== */
-
-getElement("notificationBadge")?.addEventListener(
-    "click",
-    openNotifications
-);
-
-
-/* ==========================================
-   START NOTIFICATION REFRESH
-========================================== */
-
-function startNotificationRefresh() {
-    if (notificationRefreshTimer) {
-        clearInterval(notificationRefreshTimer);
-    }
-
-    if (!currentUser) return;
-
-    loadUnreadNotificationCount();
-
-    notificationRefreshTimer = setInterval(() => {
-        if (currentUser) {
-            refreshNotifications();
-        }
-    }, 30000);
-}
-
-
-/* ==========================================
-   STOP NOTIFICATION REFRESH
-========================================== */
-
-function stopNotificationRefresh() {
-    if (notificationRefreshTimer) {
-        clearInterval(notificationRefreshTimer);
-        notificationRefreshTimer = null;
-    }
-
-    updateNotificationBadge(0);
-}
-
-
-/* ==========================================
-   UPDATE AUTH HANDLER FOR NOTIFICATIONS
-========================================== */
-
-const previousHandleAuthState = handleAuthState;
-
-handleAuthState = async function(session) {
-    await previousHandleAuthState(session);
-
-    if (currentUser) {
-        startNotificationRefresh();
-
-        await loadUnreadNotificationCount();
-
-        await updateMyFollowCounts();
-        await refreshProfileStatistics();
-
-    } else {
-        stopNotificationRefresh();
-    }
-};
-    
-/* ==========================================
-   JIENXS — PART 8
-   OWNER DASHBOARD AND FINAL CONNECTION
-========================================== */
-
-
-/* ==========================================
-   OWNER DASHBOARD ACCESS
-========================================== */
-
-async function openAdminDashboard() {
-    if (!currentUser) {
-        alert("Please sign in first.");
-        showPage("authPage");
-        return;
-    }
-
-    const ownerVerified = await refreshOwnerAccess();
-
-    if (!ownerVerified) {
-        alert("Access denied. This dashboard is for the JIENXS owner only.");
-        return;
-    }
-
-    showPage("adminPage");
-
-    await loadAdminDashboard();
-}
-
-
-/* ==========================================
-   LOAD DASHBOARD STATISTICS
-========================================== */
-
-async function loadAdminDashboard() {
-    if (!currentUser || !isJienxsOwner) return;
-
-    const identity = getElement("adminIdentity");
-
-    if (identity) {
-        identity.textContent =
-            "JIENXS OWNER: " +
-            (currentUser.email || "Verified owner");
-    }
-
-    const [
-        usersResult,
-        videosResult,
-        publishedResult,
-        commentsResult
-    ] = await Promise.all([
-
-        supabaseClient
-            .from("profiles")
-            .select("id", { count: "exact", head: true }),
-
-        supabaseClient
-            .from("videos")
-            .select("id", { count: "exact", head: true }),
-
-        supabaseClient
-            .from("videos")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "published"),
-
-        supabaseClient
-            .from("comments")
-            .select("id", { count: "exact", head: true })
-
-    ]);
-
-    if (usersResult.error) {
-        console.error("User statistics:", usersResult.error.message);
-    }
-
-    if (videosResult.error) {
-        console.error("Video statistics:", videosResult.error.message);
-    }
-
-    if (publishedResult.error) {
-        console.error("Published statistics:", publishedResult.error.message);
-    }
-
-    if (commentsResult.error) {
-        console.error("Comment statistics:", commentsResult.error.message);
-    }
-
-    if (getElement("adminUserCount")) {
-        getElement("adminUserCount").textContent =
-            usersResult.count ?? "—";
-    }
-
-    if (getElement("adminVideoCount")) {
-        getElement("adminVideoCount").textContent =
-            videosResult.count ?? "—";
-    }
-
-    if (getElement("adminPublishedCount")) {
-        getElement("adminPublishedCount").textContent =
-            publishedResult.count ?? "—";
-    }
-
-    if (getElement("adminCommentCount")) {
-        getElement("adminCommentCount").textContent =
-            commentsResult.count ?? "—";
-    }
-
-    await showAdminSection("overview");
-}
-
-
-/* ==========================================
-   ADMIN SECTION NAVIGATION
-========================================== */
-
-async function showAdminSection(section) {
-    if (!currentUser || !isJienxsOwner) {
-        alert("Owner access required.");
-        return;
-    }
-
-    const container = getElement("adminContent");
-
-    if (!container) return;
-
-    document.querySelectorAll(".admin-tabs button").forEach(button => {
-        button.classList.remove("active");
-
-        const action = button.getAttribute("onclick") || "";
-
-        if (action.includes("'" + section + "'")) {
-            button.classList.add("active");
-        }
+      });
     });
 
-    container.innerHTML = `
-        <div class="empty-state">Loading dashboard...</div>
-    `;
+  container.querySelectorAll("[data-notification-video]")
+    .forEach(button => {
+      button.addEventListener("click", async () => {
+        const videoId = button.dataset.notificationVideo;
 
-    if (section === "overview") {
-        container.innerHTML = `
-            <div class="admin-overview">
-                <h3>Welcome to JIENXS Owner Dashboard</h3>
-                <p>Manage your video platform from this dashboard.</p>
-                <p>Monitor members, uploaded videos and comments.</p>
-                <button
-                    class="primary-button"
-                    onclick="loadAdminDashboard()"
-                >
-                    Refresh Dashboard
-                </button>
-            </div>
-        `;
-    }
+        try {
+          const { data, error } = await supabaseClient
+            .from("videos")
+            .select("*")
+            .eq("id", videoId)
+            .eq("status", "published")
+            .maybeSingle();
 
-    else if (section === "videos") {
-        await loadAdminVideos();
-    }
+          if (error) throw error;
 
-    else if (section === "comments") {
-        await loadAdminComments();
-    }
+          if (!data) {
+            alert("This video is no longer available.");
+            return;
+          }
 
-    else if (section === "users") {
-        await loadAdminUsers();
-    }
+          await markNotificationRead(
+            button.closest(".notification-item")
+              ?.querySelector("[data-notification-read]")
+              ?.dataset.notificationRead
+          );
+
+          showPage("homePage");
+
+          const video = document.querySelector(
+            `[data-video-id="${CSS.escape(videoId)}"]`
+          );
+
+          if (video) {
+            video.scrollIntoView({
+              behavior: "smooth",
+              block: "center"
+            });
+          } else {
+            await loadVideos();
+          }
+
+        } catch (error) {
+          console.error("Open notification video:", error);
+
+          alert("Could not open video: " + error.message);
+        }
+      });
+    });
 }
 
+/* =========================================
+   LOAD UNREAD COUNT
+========================================= */
 
-/* ==========================================
+async function loadUnreadNotificationCount() {
+  if (!currentUser) {
+    updateNotificationBadge(0);
+    return;
+  }
+
+  try {
+    const { count, error } = await supabaseClient
+      .from("notifications")
+      .select("*", { count: "exact", head: true })
+      .eq("recipient_id", currentUser.id)
+      .eq("is_read", false);
+
+    if (error) throw error;
+
+    updateNotificationBadge(count || 0);
+
+  } catch (error) {
+    console.error("Unread notification count:", error);
+  }
+}
+
+/* =========================================
+   REFRESH NOTIFICATIONS
+========================================= */
+
+async function refreshNotifications() {
+  if (!currentUser) return;
+
+  await loadUnreadNotificationCount();
+
+  if (
+    $("notificationsPage") &&
+    $("notificationsPage").classList.contains("active")
+  ) {
+    await loadNotifications();
+  }
+}
+
+/* =========================================
+   INITIAL NOTIFICATION SETUP
+========================================= */
+
+async function initializeNotifications() {
+  if (!currentUser) {
+    updateNotificationBadge(0);
+    return;
+  }
+
+  await loadUnreadNotificationCount();
+}
+
+console.log("JIENXS Part 7 loaded.");
+  
+/* =========================================
+   JIENXS PART 8
+   OWNER BUTTON AND ADMIN DASHBOARD
+========================================= */
+
+/* =========================================
+   VERIFY JIENXS OWNER
+========================================= */
+
+let jienxsOwnerVerified = false;
+
+async function checkOwnerAccess() {
+  if (!currentUser) {
+    jienxsOwnerVerified = false;
+    updateOwnerButton();
+    return false;
+  }
+
+  try {
+    const { data, error } = await supabaseClient.rpc(
+      "is_jienxs_admin"
+    );
+
+    if (error) throw error;
+
+    jienxsOwnerVerified =
+      currentUser.id === OWNER_USER_ID &&
+      data === true;
+
+    updateOwnerButton();
+
+    return jienxsOwnerVerified;
+
+  } catch (error) {
+    console.error("Owner verification error:", error);
+
+    jienxsOwnerVerified = false;
+    updateOwnerButton();
+
+    return false;
+  }
+}
+
+/* =========================================
+   SHOW OR HIDE OWNER BUTTON
+========================================= */
+
+function updateOwnerButton() {
+  const button = $("adminNavButton");
+
+  if (!button) return;
+
+  button.style.display =
+    currentUser && currentUser.id === OWNER_USER_ID
+      ? "inline-flex"
+      : "none";
+}
+
+/* =========================================
+   OPEN OWNER DASHBOARD
+========================================= */
+
+async function openAdminDashboard() {
+  if (!currentUser) {
+    alert("Please sign in with the JIENXS owner account.");
+    showPage("authPage");
+    return;
+  }
+
+  const isOwner = await checkOwnerAccess();
+
+  if (!isOwner) {
+    alert("Access denied. This dashboard is only for the JIENXS owner.");
+    return;
+  }
+
+  document.querySelectorAll(".page").forEach(page => {
+    page.classList.remove("active");
+  });
+
+  $("adminPage").classList.add("active");
+
+  document.querySelectorAll(".nav-button").forEach(button => {
+    button.classList.remove("active");
+  });
+
+  await loadAdminSection("overview");
+}
+
+/* =========================================
+   ADMIN DASHBOARD SECTION LOADER
+========================================= */
+
+async function loadAdminSection(section) {
+  if (!currentUser || !jienxsOwnerVerified) {
+    alert("Owner access required.");
+    return;
+  }
+
+  const content = $("adminContent");
+
+  if (!content) return;
+
+  content.innerHTML =
+    '<p class="empty-state">Loading dashboard...</p>';
+
+  document.querySelectorAll(".admin-tabs button").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.getAttribute("onclick")?.includes(section)
+    );
+  });
+
+  try {
+    if (section === "overview") {
+      await loadAdminOverview();
+    } else if (section === "videos") {
+      await loadAdminVideos();
+    } else if (section === "comments") {
+      await loadAdminComments();
+    } else if (section === "users") {
+      await loadAdminUsers();
+    } else {
+      content.innerHTML =
+        '<p class="empty-state">Dashboard section not found.</p>';
+    }
+
+  } catch (error) {
+    console.error("Admin section error:", error);
+
+    content.innerHTML =
+      '<p class="empty-state">Dashboard error: ' +
+      escapeHTML(error.message) + '</p>';
+  }
+}
+
+/* =========================================
+   ADMIN OVERVIEW STATISTICS
+========================================= */
+
+async function loadAdminOverview() {
+  const content = $("adminContent");
+
+  const [users, videos, published, comments] =
+    await Promise.all([
+      supabaseClient
+        .from("profiles")
+        .select("*", { count: "exact", head: true }),
+
+      supabaseClient
+        .from("videos")
+        .select("*", { count: "exact", head: true }),
+
+      supabaseClient
+        .from("videos")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "published"),
+
+      supabaseClient
+        .from("comments")
+        .select("*", { count: "exact", head: true })
+    ]);
+
+  if (users.error) throw users.error;
+  if (videos.error) throw videos.error;
+  if (published.error) throw published.error;
+  if (comments.error) throw comments.error;
+
+  $("adminUserCount").textContent = users.count || 0;
+  $("adminVideoCount").textContent = videos.count || 0;
+  $("adminPublishedCount").textContent = published.count || 0;
+  $("adminCommentCount").textContent = comments.count || 0;
+
+  content.innerHTML = `
+    <h3>Welcome to the JIENXS Owner Dashboard</h3>
+
+    <p>
+      Manage your platform, monitor videos, review comments
+      and view registered creator profiles.
+    </p>
+
+    <div class="admin-stat-grid">
+
+      <div class="admin-stat">
+        <h3>${users.count || 0}</h3>
+        <p>Registered Profiles</p>
+      </div>
+
+      <div class="admin-stat">
+        <h3>${videos.count || 0}</h3>
+        <p>Total Videos</p>
+      </div>
+
+      <div class="admin-stat">
+        <h3>${published.count || 0}</h3>
+        <p>Published Videos</p>
+      </div>
+
+      <div class="admin-stat">
+        <h3>${comments.count || 0}</h3>
+        <p>Total Comments</p>
+      </div>
+
+    </div>
+
+    <p class="form-message">
+      JIENXS owner verification successful.
+    </p>
+
+    <button class="primary-button"
+      onclick="loadAdminSection('videos')">
+      Manage Videos
+    </button>
+
+    <button class="secondary-button"
+      onclick="loadAdminSection('comments')">
+      Manage Comments
+    </button>
+
+    <button class="secondary-button"
+      onclick="loadAdminSection('users')">
+      View Users
+    </button>
+  `;
+}
+
+/* =========================================
    ADMIN VIDEO MANAGEMENT
-========================================== */
+========================================= */
 
 async function loadAdminVideos() {
-    const container = getElement("adminContent");
+  const content = $("adminContent");
 
-    if (!container || !isJienxsOwner) return;
+  const { data, error } = await supabaseClient
+    .from("videos")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
 
-    const { data, error } = await supabaseClient
-        .from("videos")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(200);
+  if (error) throw error;
 
-    if (error) {
-        container.innerHTML = `
-            <div class="empty-state">
-                Could not load videos: ${safeText(error.message)}
-            </div>
-        `;
-        return;
-    }
+  const videos = data || [];
 
-    if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">No videos found.</div>
-        `;
-        return;
-    }
+  if (!videos.length) {
+    content.innerHTML =
+      "<h3>Video Management</h3><p>No videos found.</p>";
+    return;
+  }
 
-    container.innerHTML = `
-        <h3>Video Management</h3>
-        <p>Total videos displayed: ${data.length}</p>
+  content.innerHTML = `
+    <h3>Video Management</h3>
 
-        ${data.map(video => `
-            <div class="admin-item">
+    <p>Review and manage videos uploaded to JIENXS.</p>
 
-                <strong>${safeText(video.title)}</strong>
+    ${videos.map(video => `
+      <div class="admin-item">
 
-                <p>
-                    Creator: ${safeText(video.creator_name || "Unknown")}
-                </p>
+        <strong>${escapeHTML(video.title || "Untitled video")}</strong>
 
-                <p>
-                    Category: ${safeText(video.category || "Other")}
-                </p>
+        <p>
+          Creator: ${escapeHTML(video.creator_name || "Unknown")}
+        </p>
 
-                <p>
-                    Status: ${safeText(video.status || "Unknown")}
-                </p>
+        <p>
+          Category: ${escapeHTML(video.category || "Other")}
+        </p>
 
-                <button
-                    class="delete-button"
-                    onclick="deleteVideo('${safeText(video.id)}')"
-                >
-                    Delete Video
-                </button>
+        <p>
+          Status: ${escapeHTML(video.status || "Unknown")}
+        </p>
 
-            </div>
-        `).join("")}
-    `;
+        <small>${formatVideoDate(video.created_at)}</small>
+
+        <div class="video-actions">
+
+          <button class="secondary-button"
+            onclick="adminViewVideo('${escapeHTML(video.id)}')">
+            View
+          </button>
+
+          <button class="danger-button"
+            onclick="adminDeleteVideo('${escapeHTML(video.id)}')">
+            Delete Video
+          </button>
+
+        </div>
+
+      </div>
+    `).join("")}
+  `;
 }
 
+/* =========================================
+   ADMIN VIEW VIDEO
+========================================= */
 
-/* ==========================================
+async function adminViewVideo(videoId) {
+  if (!jienxsOwnerVerified) return;
+
+  const { data, error } = await supabaseClient
+    .from("videos")
+    .select("*")
+    .eq("id", videoId)
+    .maybeSingle();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  if (!data) {
+    alert("Video not found.");
+    return;
+  }
+
+  const url = safeVideoURL(data.video_url);
+
+  if (!url) {
+    alert("This video does not have a valid playback URL.");
+    return;
+  }
+
+  window.open(url, "_blank", "noopener");
+}
+
+/* =========================================
+   ADMIN DELETE VIDEO
+========================================= */
+
+async function adminDeleteVideo(videoId) {
+  if (!jienxsOwnerVerified) {
+    alert("Owner access required.");
+    return;
+  }
+
+  if (!confirm(
+    "Are you sure you want to permanently delete this video?"
+  )) return;
+
+  try {
+    const { data: video, error: fetchError } =
+      await supabaseClient
+        .from("videos")
+        .select("id,storage_path")
+        .eq("id", videoId)
+        .maybeSingle();
+
+    if (fetchError) throw fetchError;
+    if (!video) throw new Error("Video not found.");
+
+    const { error: deleteError } = await supabaseClient
+      .from("videos")
+      .delete()
+      .eq("id", videoId);
+
+    if (deleteError) throw deleteError;
+
+    if (video.storage_path) {
+      const { error: storageError } = await supabaseClient
+        .storage
+        .from(JIENXS_STORAGE_BUCKET)
+        .remove([video.storage_path]);
+
+      if (storageError) {
+        console.warn("Storage cleanup failed:", storageError.message);
+      }
+    }
+
+    alert("Video deleted from JIENXS.");
+
+    await loadAdminVideos();
+    await loadAdminOverview();
+    await loadVideos();
+
+  } catch (error) {
+    console.error("Admin video deletion:", error);
+    alert("Could not delete video: " + error.message);
+  }
+}
+
+/* =========================================
    ADMIN COMMENT MANAGEMENT
-========================================== */
+========================================= */
 
 async function loadAdminComments() {
-    const container = getElement("adminContent");
+  const content = $("adminContent");
 
-    if (!container || !isJienxsOwner) return;
+  const { data, error } = await supabaseClient
+    .from("comments")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(200);
 
-    const { data, error } = await supabaseClient
-        .from("comments")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(200);
+  if (error) throw error;
 
-    if (error) {
-        container.innerHTML = `
-            <div class="empty-state">
-                Could not load comments: ${safeText(error.message)}
-            </div>
-        `;
-        return;
-    }
+  const comments = data || [];
 
-    if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">No comments found.</div>
-        `;
-        return;
-    }
+  if (!comments.length) {
+    content.innerHTML =
+      "<h3>Comment Management</h3><p>No comments found.</p>";
+    return;
+  }
 
-    container.innerHTML = `
-        <h3>Comment Management</h3>
-        <p>Total comments displayed: ${data.length}</p>
+  content.innerHTML = `
+    <h3>Comment Management</h3>
 
-        ${data.map(comment => `
-            <div class="admin-item">
+    ${comments.map(comment => `
+      <div class="admin-item">
 
-                <strong>
-                    ${safeText(comment.creator_name || "JIENXS User")}
-                </strong>
+        <strong>
+          ${escapeHTML(comment.creator_name || "JIENXS User")}
+        </strong>
 
-                <p>${safeText(comment.content || "")}</p>
+        <p>${escapeHTML(comment.content || "")}</p>
 
-                <button
-                    class="delete-button"
-                    onclick="adminDeleteComment('${safeText(comment.id)}')"
-                >
-                    Delete Comment
-                </button>
+        <small>${formatVideoDate(comment.created_at)}</small>
 
-            </div>
-        `).join("")}
-    `;
+        ${
+          comment.id
+            ? `
+              <button class="danger-button"
+                onclick="adminDeleteComment('${escapeHTML(comment.id)}')">
+                Delete Comment
+              </button>
+            `
+            : '<p>Comment ID unavailable.</p>'
+        }
+
+      </div>
+    `).join("")}
+  `;
 }
 
-
-/* ==========================================
-   OWNER COMMENT DELETION
-========================================== */
+/* =========================================
+   ADMIN DELETE COMMENT
+========================================= */
 
 async function adminDeleteComment(commentId) {
-    if (!currentUser || !isJienxsOwner) {
-        alert("Owner access required.");
-        return;
-    }
+  if (!jienxsOwnerVerified) return;
 
-    if (!confirm("Delete this comment permanently?")) return;
+  if (!confirm("Permanently delete this comment?")) return;
 
+  try {
     const { error } = await supabaseClient
-        .from("comments")
-        .delete()
-        .eq("id", commentId);
+      .from("comments")
+      .delete()
+      .eq("id", commentId);
 
-    if (error) {
-        alert("Comment deletion failed: " + error.message);
-        return;
-    }
+    if (error) throw error;
 
     alert("Comment deleted.");
 
     await loadAdminComments();
-    await loadAdminDashboard();
+    await loadAdminOverview();
+
+  } catch (error) {
+    console.error("Admin comment deletion:", error);
+
+    alert("Could not delete comment: " + error.message);
+  }
 }
 
-
-/* ==========================================
+/* =========================================
    ADMIN USER MANAGEMENT
-========================================== */
+========================================= */
 
 async function loadAdminUsers() {
-    const container = getElement("adminContent");
+  const content = $("adminContent");
 
-    if (!container || !isJienxsOwner) return;
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("id,username,nickname,created_at")
+    .order("created_at", { ascending: false })
+    .limit(200);
 
-    const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("id, username, nickname, created_at")
-        .order("created_at", { ascending: false })
-        .limit(200);
+  if (error) throw error;
 
-    if (error) {
-        container.innerHTML = `
-            <div class="empty-state">
-                Could not load users: ${safeText(error.message)}
-            </div>
-        `;
-        return;
-    }
+  const users = data || [];
 
-    if (!data || data.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">No user profiles found.</div>
-        `;
-        return;
-    }
+  if (!users.length) {
+    content.innerHTML =
+      "<h3>User Management</h3><p>No profiles found.</p>";
+    return;
+  }
 
-    container.innerHTML = `
-        <h3>Registered JIENXS Members</h3>
-        <p>Profiles displayed: ${data.length}</p>
+  content.innerHTML = `
+    <h3>User Management</h3>
 
-        ${data.map(user => `
-            <div class="admin-item">
+    <p>Registered JIENXS creator profiles.</p>
 
-                <strong>
-                    ${safeText(user.nickname || user.username || "JIENXS User")}
-                </strong>
+    ${users.map(user => `
+      <div class="admin-item">
 
-                <p>
-                    Username: @${safeText(user.username || "unknown")}
-                </p>
+        <strong>
+          ${escapeHTML(user.nickname || "JIENXS User")}
+        </strong>
 
-                <p>
-                    Member ID: ${safeText(user.id)}
-                </p>
+        <p>
+          Username: @${escapeHTML(user.username || "not-set")}
+        </p>
 
-                <p>
-                    Joined: ${
-                        user.created_at
-                        ? safeText(new Date(user.created_at).toLocaleDateString())
-                        : "Unknown"
-                    }
-                </p>
+        <small>
+          Joined: ${formatVideoDate(user.created_at)}
+        </small>
 
-            </div>
-        `).join("")}
-    `;
+        <p>
+          ${user.id === OWNER_USER_ID ? "JIENXS Owner" : "Member"}
+        </p>
+
+      </div>
+    `).join("")}
+  `;
 }
 
+/* =========================================
+   REFRESH OWNER DASHBOARD
+========================================= */
 
-/* ==========================================
-   CONNECT OWNER BUTTONS
-========================================== */
+async function refreshAdminDashboard() {
+  if (!await checkOwnerAccess()) {
+    alert("Owner access required.");
+    return;
+  }
 
-getElement("adminNavButton")?.addEventListener(
-    "click",
-    openAdminDashboard
-);
-
-getElement("bottomOwnerButton")?.addEventListener(
-    "click",
-    openAdminDashboard
-);
-
-
-/* ==========================================
-   UPDATE PROFILE LOADING
-========================================== */
-
-const originalLoadProfile = loadProfile;
-
-loadProfile = async function() {
-    const result = await originalLoadProfile();
-
-    if (currentUser) {
-        await loadMyVideos();
-        await refreshProfileStatistics();
-    }
-
-    return result;
-};
-
-
-/* ==========================================
-   UPDATE VIDEO REFRESH
-========================================== */
-
-async function refreshJienxsContent() {
-    await loadVideos();
-
-    if (currentUser) {
-        await loadMyVideos();
-        await refreshProfileStatistics();
-        await loadUnreadNotificationCount();
-    }
+  await loadAdminOverview();
 }
 
+/* =========================================
+   NOTIFICATION REFRESH AFTER AUTH CHANGES
+========================================= */
 
-/* ==========================================
-   INITIAL OWNER BUTTON VISIBILITY
-========================================== */
-
-updateOwnerButtons();
-
-
-/* ==========================================
-   FINAL JIENXS STARTUP
-========================================== */
-
-(async function startJienxsWebsite() {
-
-    console.log("JIENXS is starting...");
-
-    try {
-        const { data, error } =
-            await supabaseClient.auth.getSession();
-
-        if (error) throw error;
-
-        if (data.session) {
-            await handleAuthState(data.session);
-        } else {
-            currentUser = null;
-            currentProfile = null;
-            isJienxsOwner = false;
-
-            updateAuthUI();
-            updateOwnerButtons();
-        }
-
-        await loadVideos();
-
-        if (currentUser) {
-            await loadMyVideos();
-            await refreshProfileStatistics();
-            await loadUnreadNotificationCount();
-        }
-
-        console.log("JIENXS website is ready.");
-
-    } catch (error) {
-        console.error("JIENXS startup error:", error);
+supabaseClient.auth.onAuthStateChange(() => {
+  setTimeout(async () => {
+    if (currentUser) {
+      await loadUnreadNotificationCount();
+      await refreshProfileStatistics();
+    } else {
+      updateNotificationBadge(0);
     }
+  }, 500);
+});
 
-})();
+/* =========================================
+   INITIAL PAGE REFRESH
+========================================= */
 
+setTimeout(async () => {
+  if (currentUser) {
+    await loadUnreadNotificationCount();
+    await refreshProfileStatistics();
+    await checkOwnerAccess();
+  }
+}, 1000);
 
-/* ==========================================
-   END OF JIENXS JAVASCRIPT
-========================================== */
+console.log("JIENXS PARTS 1–8 LOADED SUCCESSFULLY.");
+
+/* =========================================
+   END OF JIENXS WEBSITE
+========================================= */
+
 </script>
-
 </body>
 </html>
