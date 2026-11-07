@@ -248,8 +248,7 @@ a {
   font-size: 15px;
   overflow-wrap: anywhere;
 }
-
-.video-meta {
+  .video-meta {
   color: var(--muted);
   font-size: 12px;
 }
@@ -357,7 +356,7 @@ textarea.form-control {
 }
 
 /* END OF PART 1A */
-  /* SEARCH */
+   /* SEARCH */
 
 .search-container {
   width: 100%;
@@ -498,7 +497,7 @@ textarea.form-control {
 
 .admin-stat strong {
   display: block;
-  margin-top: 7px;
+    margin-top: 7px;
   font-size: 23px;
 }
 
@@ -658,7 +657,7 @@ textarea.form-control {
 <body>
 
 <!-- END OF PART 1B -->
-  <!-- JIENXS HEADER -->
+   <!-- JIENXS HEADER -->
 
 <header class="header">
   <div class="header-inner">
@@ -748,7 +747,7 @@ textarea.form-control {
         class="category-button"
         onclick="filterVideos('Other',this)">
         Other
-      </button>
+              </button>
 
     </div>
 
@@ -917,7 +916,7 @@ textarea.form-control {
     </div>
 
   </section>
-    <!-- PROFILE PAGE -->
+      <!-- PROFILE PAGE -->
 
   <section id="profile" class="page">
 
@@ -1058,8 +1057,7 @@ textarea.form-control {
       </div>
 
       <div id="signupFields" class="hidden">
-
-        <div class="form-group">
+                <div class="form-group">
           <label for="signupNickname">Nickname</label>
           <input
             type="text"
@@ -1247,7 +1245,7 @@ textarea.form-control {
   </section>
 
 <!-- END OF PART 2B -->
-  <!-- OWNER ADMIN DASHBOARD -->
+     <!-- OWNER ADMIN DASHBOARD -->
 <section class="page" id="admin">
   <div class="section-heading">
     <h2>👑 Owner Dashboard</h2>
@@ -1349,7 +1347,7 @@ textarea.form-control {
 
 <!-- JIENXS JAVASCRIPT -->
 <script>
-  // ==========================================
+   // ==========================================
 // JIENXS - PART 4
 // SUPABASE CONNECTION AND MAIN SETUP
 // ==========================================
@@ -1381,6 +1379,7 @@ let isOwner = false;
 let allVideos = [];
 let allComments = [];
 let allNotifications = [];
+let unreadNotificationCount = 0;
 let allFollows = [];
 
 let currentCommentsVideoId = null;
@@ -1754,9 +1753,8 @@ async function handleSignUp() {
         : "Sign In";
     }
   }
-}
-
-// ==========================================
+    }
+  // ==========================================
 // LOAD CURRENT USER PROFILE
 // ==========================================
 
@@ -1974,7 +1972,7 @@ async function signOut() {
 // ==========================================
 // END OF PART 5
 // ==========================================
-  // ==========================================
+     // ==========================================
 // JIENXS - PART 6
 // VIDEO LOADING AND DISPLAY
 // ==========================================
@@ -2307,7 +2305,7 @@ function updateEmptyStates(videos) {
 // ==========================================
 // END OF PART 6
 // ==========================================
-  // ==========================================
+     // ==========================================
 // JIENXS - PART 7
 // LIKES AND COMMENTS
 // ==========================================
@@ -3120,28 +3118,99 @@ async function toggleCreatorFollow() {
 async function loadNotifications() {
   if (!currentUser) {
     allNotifications = [];
+    unreadNotificationCount = 0;
+    renderNotifications();
     updateNotificationBadge();
     return;
   }
 
   try {
-    const { data, error } = await supabaseClient
+    const notificationsResult = await supabaseClient
       .from("notifications")
       .select("*")
       .eq("recipient_id", currentUser.id)
       .order("created_at", { ascending: false })
       .limit(100);
 
-    if (error) throw error;
+    if (notificationsResult.error) {
+      throw notificationsResult.error;
+    }
 
-    allNotifications = data || [];
+    allNotifications = notificationsResult.data || [];
+
+    const countResult = await supabaseClient
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("recipient_id", currentUser.id)
+      .eq("is_read", false);
+
+    if (countResult.error) throw countResult.error;
+
+    unreadNotificationCount = countResult.count || 0;
+
+    const actorIds = Array.from(new Set(
+      allNotifications
+        .map(function(notification) {
+          return notification.actor_id;
+        })
+        .filter(Boolean)
+    ));
+
+    const actorNames = {};
+
+    if (actorIds.length > 0) {
+      const profilesResult = await supabaseClient
+        .from("profiles")
+        .select("id, username, nickname")
+        .in("id", actorIds);
+
+      if (profilesResult.error) throw profilesResult.error;
+
+      (profilesResult.data || []).forEach(function(profile) {
+        actorNames[profile.id] =
+          profile.username || profile.nickname || "creator";
+      });
+    }
+
+    allNotifications = allNotifications.map(function(notification) {
+      return {
+        ...notification,
+        actor_username: actorNames[notification.actor_id] || "creator"
+      };
+    });
 
     renderNotifications();
     updateNotificationBadge();
 
   } catch (error) {
     console.error("Notification loading error:", error);
+    showMessage("Could not load notifications. Please refresh and try again.");
   }
+}
+
+// ==========================================
+// BUILD NOTIFICATION MESSAGE
+// ==========================================
+
+function getNotificationMessage(notification) {
+  const username = String(notification.actor_username || "creator")
+    .replace(/^@+/, "");
+
+  const actor = "@" + username;
+
+  if (notification.type === "like") {
+    return actor + " liked your video.";
+  }
+
+  if (notification.type === "comment") {
+    return actor + " commented on your video.";
+  }
+
+  if (notification.type === "follow") {
+    return actor + " started following you.";
+  }
+
+  return notification.message || "You have a new notification.";
 }
 
 // ==========================================
@@ -3153,13 +3222,20 @@ function updateNotificationBadge() {
 
   if (!badge) return;
 
-  const unreadCount = allNotifications.filter(function(notification) {
-    return notification.is_read === false;
-  }).length;
+  const unreadCount = Number(unreadNotificationCount) || 0;
 
-  badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
+  badge.textContent = unreadCount >= 100
+    ? "99+"
+    : String(unreadCount);
 
-  badge.classList.toggle("hidden", unreadCount === 0);
+  badge.style.display = unreadCount === 0
+    ? "none"
+    : "inline-flex";
+
+  badge.setAttribute(
+    "aria-label",
+    unreadCount + " unread notifications"
+  );
 }
 
 // ==========================================
@@ -3183,10 +3259,14 @@ function renderNotifications() {
 
   container.innerHTML = allNotifications.map(function(notification) {
     const notificationId = escapeHtml(notification.id);
+
     const message = escapeHtml(
-      notification.message || "You have a new notification."
+      getNotificationMessage(notification)
     );
-    const date = escapeHtml(formatDate(notification.created_at));
+
+    const date = escapeHtml(
+      formatDate(notification.created_at)
+    );
 
     const unreadClass = notification.is_read === false
       ? "unread"
@@ -3202,8 +3282,7 @@ function renderNotifications() {
           ${notification.is_read === false ? `
             <button
               class="small-button"
-              onclick="markNotificationRead('${notificationId}')"
-            >
+              onclick="markNotificationRead('${notificationId}')">
               Mark as read
             </button>
           ` : `
@@ -3223,6 +3302,14 @@ async function markNotificationRead(notificationId) {
   if (!currentUser) return;
 
   try {
+    const notification = allNotifications.find(function(item) {
+      return String(item.id) === String(notificationId);
+    });
+
+    if (!notification || notification.is_read !== false) {
+      return;
+    }
+
     const { error } = await supabaseClient
       .from("notifications")
       .update({ is_read: true })
@@ -3231,16 +3318,18 @@ async function markNotificationRead(notificationId) {
 
     if (error) throw error;
 
-    allNotifications = allNotifications.map(function(notification) {
-      if (String(notification.id) === String(notificationId)) {
-        return {
-          ...notification,
-          is_read: true
-        };
+    allNotifications = allNotifications.map(function(item) {
+      if (String(item.id) === String(notificationId)) {
+        return { ...item, is_read: true };
       }
 
-      return notification;
+      return item;
     });
+
+    unreadNotificationCount = Math.max(
+      0,
+      unreadNotificationCount - 1
+    );
 
     renderNotifications();
     updateNotificationBadge();
@@ -3273,6 +3362,8 @@ async function markAllNotificationsRead() {
         is_read: true
       };
     });
+
+    unreadNotificationCount = 0;
 
     renderNotifications();
     updateNotificationBadge();
@@ -3417,16 +3508,14 @@ function renderAdminVideos(videos) {
           ${video.status === "pending" ? `
             <button
               class="small-button"
-              onclick="approveAdminVideo('${id}')"
-            >
+              onclick="approveAdminVideo('${id}')">
               Approve
             </button>
           ` : ""}
 
           <button
             class="danger-button"
-            onclick="adminDeleteVideo('${id}')"
-          >
+            onclick="adminDeleteVideo('${id}')">
             Delete Video
           </button>
         </div>
@@ -3529,7 +3618,8 @@ async function adminDeleteVideo(videoId) {
 // ==========================================
 // END OF PART 9B
 // ==========================================
-  // ==========================================
+
+// ==========================================
 // JIENXS - PART 10
 // WEBSITE INITIALIZATION
 // ==========================================
@@ -3540,15 +3630,12 @@ async function adminDeleteVideo(videoId) {
 
 async function initializeJienxs() {
   try {
-    // Start on the Home page.
     showPage("home");
 
-    // Set initial interface.
     updateAuthButton();
     updateOwnerButton();
     updateNotificationBadge();
 
-    // Restore the existing login session.
     const { data, error } = await supabaseClient.auth.getSession();
 
     if (error) throw error;
@@ -3562,10 +3649,8 @@ async function initializeJienxs() {
       isOwner = false;
     }
 
-    // Load the website's videos.
     await loadVideos();
 
-    // Load notifications for signed-in users.
     if (currentUser) {
       await loadNotifications();
     }
@@ -3588,12 +3673,8 @@ async function initializeJienxs() {
 
 supabaseClient.auth.onAuthStateChange(function(event, session) {
 
-  // Ignore the initial event because initializeJienxs()
-  // already checks the existing session.
   if (event === "INITIAL_SESSION") return;
 
-  // Run database operations after the authentication callback
-  // has finished.
   setTimeout(async function() {
     try {
       if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
@@ -3614,6 +3695,7 @@ supabaseClient.auth.onAuthStateChange(function(event, session) {
         isOwner = false;
 
         allNotifications = [];
+        unreadNotificationCount = 0;
 
         updateAuthButton();
         updateOwnerButton();
@@ -3647,6 +3729,7 @@ initializeJienxs();
 // ==========================================
 // END OF JIENXS JAVASCRIPT
 // ==========================================
+
 </script>
 
 </body>
