@@ -7,7 +7,7 @@
 
 <title>JIENXS - Watch. Share. Discover.</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onerror="this.onerror=null;this.src='https://unpkg.com/@supabase/supabase-js@2'"></script>
 
 <style>
 :root {
@@ -218,7 +218,8 @@ a {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
-  .video-card {
+
+.video-card {
   min-width: 0;
   overflow: hidden;
   border: 1px solid var(--border);
@@ -247,8 +248,7 @@ a {
   font-size: 15px;
   overflow-wrap: anywhere;
 }
-
-.video-meta {
+  .video-meta {
   color: var(--muted);
   font-size: 12px;
 }
@@ -356,7 +356,7 @@ textarea.form-control {
 }
 
 /* END OF PART 1A */
-/* SEARCH */
+   /* SEARCH */
 
 .search-container {
   width: 100%;
@@ -437,7 +437,7 @@ textarea.form-control {
 
 .comment-author {
   margin-bottom: 5px;
-    font-weight: bold;
+  font-weight: bold;
 }
 
 .comment-text {
@@ -497,7 +497,7 @@ textarea.form-control {
 
 .admin-stat strong {
   display: block;
-  margin-top: 7px;
+    margin-top: 7px;
   font-size: 23px;
 }
 
@@ -657,7 +657,7 @@ textarea.form-control {
 <body>
 
 <!-- END OF PART 1B -->
-     <!-- JIENXS HEADER -->
+   <!-- JIENXS HEADER -->
 
 <header class="header">
   <div class="header-inner">
@@ -747,7 +747,7 @@ textarea.form-control {
         class="category-button"
         onclick="filterVideos('Other',this)">
         Other
-      </button>
+              </button>
 
     </div>
 
@@ -877,7 +877,7 @@ textarea.form-control {
             <option value="Football">Football</option>
             <option value="Gaming">Gaming</option>
             <option value="Skills">Skills</option>
-                        <option value="Other">Other</option>
+            <option value="Other">Other</option>
 
           </select>
 
@@ -1097,14 +1097,12 @@ textarea.form-control {
           onclick="switchAuthMode()">
           Create Account
         </button>
-              </p>
+      </p>
 
     </div>
 
   </section>
-
-
-  <!-- CREATOR PROFILE PAGE -->
+    <!-- CREATOR PROFILE PAGE -->
 
   <section id="creator" class="page">
 
@@ -1247,7 +1245,7 @@ textarea.form-control {
 
 <!-- END OF PART 2B -->
    <!-- OWNER ADMIN DASHBOARD -->
-<section class="page" id="admin">
+  <section class="page" id="admin">
   <div class="section-heading">
     <h2>👑 Owner Dashboard</h2>
     <button class="secondary-button" onclick="showPage('home')">Back</button>
@@ -1325,7 +1323,8 @@ textarea.form-control {
     <span>🔍</span>
     <small>Explore</small>
   </button>
-    <button class="bottom-nav-button" id="navUpload"
+
+  <button class="bottom-nav-button" id="navUpload"
     onclick="showPage('upload')">
     <span>➕</span>
     <small>Upload</small>
@@ -1348,9 +1347,9 @@ textarea.form-control {
 <!-- JIENXS JAVASCRIPT -->
 <script>
    // ==========================================
- // JIENXS - PART 4
- // SUPABASE CONNECTION AND MAIN SETUP
- // ==========================================
+// JIENXS - PART 4
+// SUPABASE CONNECTION AND MAIN SETUP
+// ==========================================
 
 const SUPABASE_URL = "https://duwdfekgjcleihrimxrf.supabase.co";
 
@@ -1363,10 +1362,11 @@ const OWNER_UID = "f317aa39-ac7d-4909-96cf-57fa58484fba";
 
 const STORAGE_BUCKET = "jienxs";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+const supabaseClient = (
+  window.supabase && typeof window.supabase.createClient === "function"
+)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
 
 // ==========================================
 // GLOBAL VARIABLES
@@ -1536,7 +1536,7 @@ function updateAuthButton() {
   if (currentUser) {
     button.textContent = "My Account";
     button.onclick = function() {
-            showPage("profile");
+      showPage("profile");
     };
   } else {
     button.textContent = "My Account";
@@ -1745,7 +1745,7 @@ async function handleSignUp() {
   } catch (error) {
     console.error("Sign up error:", error);
     showMessage(error.message || "Unable to create your account.");
-  } finally {
+      } finally {
     if (button) {
       button.disabled = false;
       button.textContent = authMode === "signup"
@@ -1756,78 +1756,50 @@ async function handleSignUp() {
 }
 
 // ==========================================
-// END OF PART 5
-// ==========================================
-  // LOAD CURRENT USER PROFILE
+// LOAD CURRENT USER PROFILE
 // ==========================================
 
 async function loadCurrentUser() {
-  if (!currentUser) {
-    currentProfile = null;
-    isOwner = false;
-    updateAuthButton();
-    updateOwnerButton();
-    return;
-  }
+  if (!currentUser) return;
 
-  try {
-    const { data, error } = await supabaseClient
-      .from("profiles")
-      .select("*")
-      .eq("id", currentUser.id)
-      .maybeSingle();
+  const { data, error } = await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id", currentUser.id)
+    .maybeSingle();
 
-    if (error) throw error;
-
-    currentProfile = data || {
-      id: currentUser.id,
-      username: currentUser.email?.split("@")[0] || "user",
-      nickname: "JIENXS User"
-    };
-
-    // Verify owner status using the database function.
-    const { data: adminResult, error: adminError } =
-      await supabaseClient.rpc("is_jienxs_admin");
-
-    isOwner = !adminError && adminResult === true;
-
-    updateAuthButton();
-    updateOwnerButton();
-
-    updateMyProfileDisplay();
-
-  } catch (error) {
+  if (error) {
     console.error("Profile loading error:", error);
-
-    currentProfile = null;
-    isOwner = false;
-
-    updateAuthButton();
-    updateOwnerButton();
   }
+
+  currentProfile = data || {
+    id: currentUser.id,
+    username: currentUser.email?.split("@")[0] || "user",
+    nickname: "JIENXS User"
+  };
+
+  isOwner =
+    currentUser.id === OWNER_UID ||
+    currentUser.email?.toLowerCase() === OWNER_EMAIL.toLowerCase();
+
+  updateAuthButton();
+  updateOwnerButton();
+  updateProfileDisplay();
 }
 
 // ==========================================
-// DISPLAY MY PROFILE
+// UPDATE PROFILE DISPLAY
 // ==========================================
 
-function updateMyProfileDisplay() {
+function updateProfileDisplay() {
   if (!currentUser) return;
 
-  const nickname = getDisplayName(
-    currentProfile,
-    currentUser.email?.split("@")[0] || "JIENXS User"
-  );
-
+  const nickname = getDisplayName(currentProfile);
   const username = currentProfile?.username || "user";
 
-  const avatar = getElement("profileAvatar");
   const nicknameElement = getElement("profileNickname");
   const usernameElement = getElement("profileUsername");
-
-  if (avatar) {
-    avatar.textContent = nickname.charAt(0).toUpperCase();
-  }
+  const avatarElement = getElement("profileAvatar");
 
   if (nicknameElement) {
     nicknameElement.textContent = nickname;
@@ -1836,65 +1808,25 @@ function updateMyProfileDisplay() {
   if (usernameElement) {
     usernameElement.textContent = "@" + username;
   }
+
+  if (avatarElement) {
+    avatarElement.textContent = nickname.charAt(0).toUpperCase();
+  }
+
+  const editNickname = getElement("editNickname");
+  const editUsername = getElement("editUsername");
+
+  if (editNickname) {
+    editNickname.value = currentProfile?.nickname || "";
+  }
+
+  if (editUsername) {
+    editUsername.value = currentProfile?.username || "";
+  }
 }
 
 // ==========================================
-// LOAD MY PROFILE AND VIDEOS
-// ==========================================
-
-async function loadMyProfile() {
-  if (!currentUser) return;
-
-  await loadCurrentUser();
-  updateMyProfileDisplay();
-
-  const { count: videoCount, error: videoError } =
-    await supabaseClient
-      .from("videos")
-      .select("id", { count: "exact", head: true })
-      .eq("creator_id", currentUser.id);
-
-  if (!videoError && getElement("myVideoCount")) {
-    getElement("myVideoCount").textContent = videoCount || 0;
-  }
-
-  const { count: followerCount, error: followerError } =
-    await supabaseClient
-      .from("follows")
-      .select("id", { count: "exact", head: true })
-      .eq("following_id", currentUser.id);
-
-  if (!followerError && getElement("myFollowerCount")) {
-    getElement("myFollowerCount").textContent = followerCount || 0;
-  }
-
-  const { count: followingCount, error: followingError } =
-    await supabaseClient
-      .from("follows")
-      .select("id", { count: "exact", head: true })
-      .eq("follower_id", currentUser.id);
-
-  if (!followingError && getElement("myFollowingCount")) {
-    getElement("myFollowingCount").textContent = followingCount || 0;
-  }
-
-  const { data: videos, error } = await supabaseClient
-    .from("videos")
-    .select("*")
-    .eq("creator_id", currentUser.id)
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("My videos error:", error);
-    return;
-  }
-
-  renderVideoGrid(videos || [], "myVideosGrid");
-}
-
-// ==========================================
-// EDIT PROFILE
+// SAVE PROFILE
 // ==========================================
 
 async function saveProfile(event) {
@@ -1909,17 +1841,19 @@ async function saveProfile(event) {
   const username = getElement("editUsername")?.value.trim().toLowerCase();
 
   if (!nickname || !username) {
-    showMessage("Enter your nickname and username.");
+    showMessage("Enter both your nickname and username.");
     return;
   }
 
   if (!/^[a-z0-9_]{3,20}$/.test(username)) {
-    showMessage("Username must be 3–20 letters, numbers or underscores.");
+    showMessage(
+      "Username must be 3–20 characters and use only letters, numbers or underscores."
+    );
     return;
   }
 
   try {
-    const { error } = await supabaseClient
+    const { data, error } = await supabaseClient
       .from("profiles")
       .upsert({
         id: currentUser.id,
@@ -1927,11 +1861,15 @@ async function saveProfile(event) {
         username
       }, {
         onConflict: "id"
-      });
+      })
+      .select()
+      .single();
 
     if (error) throw error;
 
-    await loadCurrentUser();
+    currentProfile = data;
+
+    updateProfileDisplay();
 
     showMessage("Your profile has been updated.");
 
@@ -1939,7 +1877,7 @@ async function saveProfile(event) {
 
   } catch (error) {
     console.error("Profile update error:", error);
-    showMessage(error.message || "Could not update your profile.");
+    showMessage(error.message || "Unable to update profile.");
   }
 }
 
@@ -1957,14 +1895,16 @@ async function signOut() {
     currentProfile = null;
     isOwner = false;
 
+    allNotifications = [];
+    unreadNotificationCount = 0;
+
     updateAuthButton();
     updateOwnerButton();
-
-    showMessage("You have signed out.");
+    updateNotificationBadge();
 
     showPage("home");
 
-    await loadVideos();
+    showMessage("You have signed out.");
 
   } catch (error) {
     console.error("Sign out error:", error);
@@ -1977,278 +1917,208 @@ async function signOut() {
 // ==========================================
    // ==========================================
 // JIENXS - PART 6
-// VIDEO LOADING AND DISPLAY
-// ==========================================
-  // ==========================================
-// GET VIDEO PLAYBACK URL
+// VIDEO LOADING AND VIDEO CARDS
 // ==========================================
 
-function getVideoUrl(video) {
-  if (video.video_url) {
-    return video.video_url;
-  }
-
-  if (video.storage_path) {
-    const { data } = supabaseClient.storage
-      .from(STORAGE_BUCKET)
-      .getPublicUrl(video.storage_path);
-
-    return data?.publicUrl || "";
-  }
-
-  return "";
-}
-
 // ==========================================
-// LOAD VIDEOS FROM SUPABASE
+// LOAD VIDEOS
 // ==========================================
 
 async function loadVideos() {
+  const homeGrid = getElement("videoGrid");
+  const shortsGrid = getElement("shortsGrid");
+  const exploreGrid = getElement("exploreGrid");
+
   try {
     const { data, error } = await supabaseClient
       .from("videos")
       .select("*")
-      .or("status.eq.published,status.is.null")
-      .order("created_at", { ascending: false });
+      .eq("status", "published")
+      .order("created_at", {
+        ascending: false
+      });
 
     if (error) throw error;
 
     allVideos = data || [];
 
-    displayAllVideoSections();
+    await loadVideoLikeCounts();
+
+    renderVideos();
 
   } catch (error) {
     console.error("Video loading error:", error);
 
-    showMessage("Unable to load videos. Please refresh and try again.");
+    const message = `
+      <div class="empty-state">
+        Unable to load videos.
+        <br>
+        ${escapeHtml(error.message)}
+      </div>
+    `;
+
+    if (homeGrid) homeGrid.innerHTML = message;
+    if (shortsGrid) shortsGrid.innerHTML = message;
+    if (exploreGrid) exploreGrid.innerHTML = message;
   }
 }
 
 // ==========================================
-// DISPLAY VIDEOS IN ALL SECTIONS
+// LOAD VIDEO LIKE COUNTS
 // ==========================================
 
-function displayAllVideoSections() {
-  const homeVideos = allVideos.filter(function(video) {
-    return !video.status || video.status === "published";
-  });
+async function loadVideoLikeCounts() {
+  if (!allVideos.length) return;
 
-  renderVideoGrid(
-    filterVideosForCategory(homeVideos),
-    "videoGrid"
-  );
+  const videoIds = allVideos.map(video => video.id);
 
-  renderVideoGrid(
-    homeVideos,
-    "shortsGrid"
-  );
+  const { data, error } = await supabaseClient
+    .from("likes")
+    .select("video_id")
+    .in("video_id", videoIds);
 
-  renderVideoGrid(
-    getExploreVideos(homeVideos),
-    "exploreGrid"
-  );
-
-  updateEmptyStates(homeVideos);
-}
-
-// ==========================================
-// RENDER VIDEO GRID
-// ==========================================
-
-function renderVideoGrid(videos, containerId) {
-  const container = getElement(containerId);
-
-  if (!container) return;
-
-  if (!videos || videos.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state">
-        <h3>No videos found</h3>
-        <p>Videos will appear here when available.</p>
-      </div>
-    `;
+  if (error) {
+    console.error("Like count loading error:", error);
     return;
   }
 
-  container.innerHTML = videos.map(function(video) {
-    return createVideoCard(video);
-  }).join("");
+  const counts = {};
+
+  (data || []).forEach(function(like) {
+    counts[like.video_id] = (counts[like.video_id] || 0) + 1;
+  });
+
+  allVideos = allVideos.map(function(video) {
+    return {
+      ...video,
+      like_count: counts[video.id] || 0
+    };
+  });
 }
 
 // ==========================================
-// CREATE VIDEO CARD
+// RENDER VIDEO GRIDS
+// ==========================================
+
+function renderVideos() {
+  renderVideoGrid("videoGrid", allVideos);
+  renderVideoGrid("shortsGrid", allVideos);
+  renderVideoGrid("exploreGrid", allVideos);
+
+  if (currentUser) {
+    renderMyVideos();
+  }
+}
+
+// ==========================================
+// VIDEO CARD HTML
 // ==========================================
 
 function createVideoCard(video) {
-  const videoId = escapeHtml(video.id);
-  const videoUrl = escapeHtml(getVideoUrl(video));
-
   const title = escapeHtml(video.title || "Untitled video");
+  const creatorName = escapeHtml(video.creator_name || "JIENXS Creator");
+  const description = escapeHtml(video.description || "");
+  const videoUrl = escapeHtml(video.video_url || "");
 
-  const creatorName = escapeHtml(
-    video.creator_name || "JIENXS User"
-  );
+  const likeCount = Number(video.like_count || 0);
 
-  const category = escapeHtml(
-    video.category || "Other"
-  );
+  const isLiked = Boolean(video.user_liked);
 
-  const description = escapeHtml(
-    video.description || ""
-  );
+  const creatorId = escapeHtml(video.creator_id || "");
 
-  const creatorId = escapeHtml(
-    video.creator_id || ""
-  );
+  const isMyVideo =
+    currentUser &&
+    video.creator_id === currentUser.id;
 
-  const date = escapeHtml(
-    formatDate(video.created_at)
-  );
+  return `
+    <article class="video-card">
 
-  const playback = videoUrl
-    ? `
       <video
         class="video-player"
         controls
         playsinline
         preload="metadata"
-        src="${videoUrl}"
-      >
-        Your browser does not support video playback.
+        src="${videoUrl}">
       </video>
-    `
-    : `
-      <div class="video-player">
-        <p>Video unavailable</p>
-      </div>
-    `;
-
-  return `
-    <article class="video-card" data-video-id="${videoId}">
-
-      ${playback}
 
       <div class="video-card-content">
 
         <h3 class="video-title">${title}</h3>
 
-        <div class="video-meta">
-          <span
-            class="creator-link"
-            onclick="openCreatorProfile('${creatorId}')"
-          >
+        <p class="video-meta">
+          By
+          <button
+            class="text-button"
+            onclick="openCreatorProfile('${creatorId}')">
             ${creatorName}
-          </span>
-          · ${category}
-          · ${date}
-        </div>
+          </button>
+        </p>
 
-        ${description ? `
-          <p class="video-description">${description}</p>
-        ` : ""}
+        ${description
+          ? `<p class="video-description">${description}</p>`
+          : ""}
 
         <div class="video-actions">
 
           <button
-            class="small-button like-button"
-            id="like-${videoId}"
-            onclick="toggleLike('${videoId}')"
-          >
-            ❤️ <span id="like-count-${videoId}">0</span>
+            class="small-button like-button ${isLiked ? "liked" : ""}"
+            onclick="toggleLike('${escapeHtml(video.id)}')">
+            ❤️ ${likeCount}
           </button>
 
           <button
             class="small-button"
-            onclick="openComments('${videoId}')"
-          >
+            onclick="openComments('${escapeHtml(video.id)}')">
             💬 Comments
           </button>
 
           <button
             class="small-button"
-            onclick="openCreatorProfile('${creatorId}')"
-          >
-            👤 Creator
+            onclick="shareVideo('${escapeHtml(video.id)}')">
+            ↗ Share
           </button>
 
-          ${currentUser && currentUser.id === video.creator_id ? `
-            <button
-              class="small-button"
-              onclick="deleteVideo('${videoId}')"
-            >
-              🗑 Delete
-            </button>
-          ` : ""}
-
-          ${isOwner ? `
-            <button
-              class="small-button"
-              onclick="adminDeleteVideo('${videoId}')"
-            >
-              👑 Admin Delete
-            </button>
-          ` : ""}
+          ${isMyVideo
+            ? `<button
+                 class="small-button"
+                 onclick="deleteVideo('${escapeHtml(video.id)}')">
+                 🗑 Delete
+               </button>`
+            : ""}
 
         </div>
+
       </div>
+
     </article>
   `;
 }
 
 // ==========================================
-// CATEGORY FILTERING
-  // ==========================================
+// RENDER A VIDEO GRID
+// ==========================================
 
-function filterVideosForCategory(videos) {
-  if (activeCategory === "All") {
-    return videos;
+function renderVideoGrid(elementId, videos) {
+  const grid = getElement(elementId);
+
+  if (!grid) return;
+
+  if (!videos || videos.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state">
+        No videos available yet.
+      </div>
+    `;
+    return;
   }
 
-  return videos.filter(function(video) {
-    return String(video.category || "Other").toLowerCase() ===
-      activeCategory.toLowerCase();
-  });
-}
-
-function filterVideos(category, button) {
-  activeCategory = category;
-
-  document.querySelectorAll(".category-button").forEach(function(item) {
-    item.classList.remove("active");
-  });
-
-  if (button) {
-    button.classList.add("active");
-  }
-
-  const filtered = filterVideosForCategory(allVideos);
-
-  renderVideoGrid(filtered, "videoGrid");
-
-  updateEmptyStates(filtered);
+  grid.innerHTML = videos.map(createVideoCard).join("");
 }
 
 // ==========================================
-// HOME VIDEO SEARCH
+// END OF PART 6
 // ==========================================
-
-function searchHomeVideos() {
-  currentSearch = (
-    getElement("homeSearch")?.value || ""
-  ).trim().toLowerCase();
-
-  let results = filterVideosForCategory(allVideos);
-
-  if (currentSearch) {
-    results = results.filter(function(video) {
-      const searchableText = [
-        video.title,
-        video.description,
-        video.creator_name,
-        video.category
-      ].join(" ").toLowerCase();
-
-      return searchableText.includes(currentSearch);
+        return searchableText.includes(currentSearch);
     });
   }
 
@@ -2417,7 +2287,8 @@ async function toggleLike(videoId) {
           video_id: videoId,
           user_id: currentUser.id
         });
-            if (error) throw error;
+
+      if (error) throw error;
     }
 
     const video = allVideos.find(function(item) {
@@ -2636,7 +2507,8 @@ async function deleteComment(commentId) {
   if (!confirm("Are you sure you want to delete this comment?")) {
     return;
   }
-    try {
+
+  try {
     const { error } = await supabaseClient
       .from("comments")
       .delete()
@@ -2666,7 +2538,7 @@ function closeComments() {
 // ==========================================
 // END OF PART 7
 // ==========================================
-   // ==========================================
+     // ==========================================
 // JIENXS - PART 8A
 // VIDEO UPLOAD AND DELETION
 // ==========================================
@@ -2745,7 +2617,7 @@ async function uploadVideo(event) {
 
     const creatorName = getDisplayName(
       currentProfile,
-      currentUser.email?.split("@")[0] || "JIENXS User"
+            currentUser.email?.split("@")[0] || "JIENXS User"
     );
 
     const { error: insertError } = await supabaseClient
@@ -2855,7 +2727,8 @@ async function deleteVideo(videoId) {
     allVideos = allVideos.filter(function(item) {
       return String(item.id) !== String(videoId);
     });
-        displayAllVideoSections();
+
+    displayAllVideoSections();
 
     await loadMyProfile();
 
@@ -2993,9 +2866,8 @@ async function updateCreatorFollowButton() {
     button.classList.remove("following");
     button.disabled = true;
     return;
-  }
-
-  try {
+      }
+    try {
     const { data, error } = await supabaseClient
       .from("follows")
       .select("id")
@@ -3073,7 +2945,8 @@ async function toggleCreatorFollow() {
           follower_id: currentUser.id,
           following_id: currentCreatorId
         });
-            if (error) throw error;
+
+      if (error) throw error;
     }
 
     await updateCreatorFollowButton();
@@ -3243,11 +3116,7 @@ function renderNotifications() {
   container.innerHTML = allNotifications.map(function(notification) {
     const notificationId = escapeHtml(notification.id);
     const message = escapeHtml(getNotificationMessage(notification));
-    const date = escapeHtml(formatDate(notification.created_at));
-    const unreadClass = notification.is_read === false ? "unread" : "";
-
-    return `
-      <div class="notification-item ${unreadClass}">
+          <div class="notification-item ${unreadClass}">
         <div class="notification-message">${message}</div>
         <div class="notification-footer">
           <span class="muted">${date}</span>
@@ -3291,7 +3160,9 @@ async function markNotificationRead(notificationId) {
     unreadNotificationCount = Math.max(0, unreadNotificationCount - 1);
     renderNotifications();
     updateNotificationBadge();
-        console.error("Mark notification read error:", error);
+
+  } catch (error) {
+    console.error("Mark notification read error:", error);
     showMessage("Could not mark notification as read.");
   }
 }
@@ -3492,8 +3363,7 @@ async function approveAdminVideo(videoId) {
       .from("videos")
       .update({ status: "published" })
       .eq("id", videoId);
-
-    if (error) throw error;
+          if (error) throw error;
 
     showMessage("Video approved.");
 
@@ -3511,7 +3381,12 @@ async function approveAdminVideo(videoId) {
 // ==========================================
 
 async function adminDeleteVideo(videoId) {
-    if (!confirm("Owner: permanently delete this video?")) {
+  if (!currentUser || !isOwner) {
+    showMessage("Owner access only.");
+    return;
+  }
+
+  if (!confirm("Owner: permanently delete this video?")) {
     return;
   }
 
